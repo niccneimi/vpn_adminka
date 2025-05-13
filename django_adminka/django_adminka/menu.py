@@ -7,5 +7,6 @@ class CustomMenu(Menu):
             items.MenuItem('Dashboard', '/admin/'),
             items.AppList('VPNPANEL', models=('vpnpanel.*',)),
             items.MenuItem('Добавить сервер', '/admin/vpnpanel/server/add-server/'),
-            items.MenuItem('Для фин. отчёта', '/admin/financial-report/')
+            items.MenuItem('Для фин. отчёта', '/admin/financial-report/'),
+            items.MenuItem('Рассылка в боте', '/admin/bot-sending/')
         ]

@@ -138,3 +138,5 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ADMIN_TOOLS_MENU = 'django_adminka.menu.CustomMenu'
+
+TELEGRAM_BOT_TOKEN = '5994614957:AAErnXd8AphhYDCia7yy-jjfvG_TKxuo8jU'

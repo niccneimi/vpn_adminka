@@ -1,13 +1,41 @@
 from django.contrib import admin
 from django.urls import path
-from django import forms
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import Server, Order
+from django.conf import settings
+from .models import Server, Order, User
+from .forms import AddServerForm, BotSendForm
 from datetime import datetime
 import requests
 
 original_get_urls = admin.site.get_urls
+
+def bot_send_view(request):
+    if request.method == 'POST':
+        form = BotSendForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            users = User.objects.all()
+            TELEGRAM_TOKEN = settings.TELEGRAM_BOT_TOKEN
+            url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+            try:
+                for user in users:
+                    response = requests.post(
+                        url,
+                        data={
+                            'chat_id': user.user_id,
+                            'text': data['message'],
+                            'parse_mode': 'HTML'
+                        }
+                    )
+                    response.raise_for_status()
+            except requests.RequestException as e:
+                messages.error(request, f"Ошибка соединения: {str(e)}")
+            messages.success(request, "Рассылка завершена!")
+            return redirect(request.path)
+    else:
+        form = BotSendForm()
+    return render(request, 'admin/bot_sending.html', {'form': form})
 
 def financial_report_view(request):
     orders = Order.objects.order_by('-created_at')
@@ -41,16 +69,10 @@ def get_urls():
     urls = original_get_urls()
     custom_urls = [
         path('financial-report/', admin.site.admin_view(financial_report_view), name='financial-report'),
+        path('bot-sending/',admin.site.admin_view(bot_send_view) ,name='bot-sending')
     ]
     return custom_urls + urls
 admin.site.get_urls = get_urls
-
-class AddServerForm(forms.Form):
-    host = forms.CharField(max_length=255, label="Host")
-    port = forms.IntegerField(initial=22, label="Port")
-    username = forms.CharField(max_length=255, label="Username")
-    password = forms.CharField(max_length=255, label="Password", widget=forms.PasswordInput)
-    location = forms.CharField(max_length=255, label="Location")
 
 @admin.register(Server)
 class ServersAdmin(admin.ModelAdmin):

@@ -100,6 +100,7 @@ class UserAdmin(ModelAdmin):
 @admin.register(ClientAsKey)
 class ClientAsKeyAdmin(admin.ModelAdmin):
     list_display = ('telegram_id', 'host', 'uuid', 'created_at', 'formatted_expiration_date', 'deleted')
+    list_filter = ('deleted',)
     ordering = ('-created_at',)
 
     def formatted_expiration_date(self, obj):

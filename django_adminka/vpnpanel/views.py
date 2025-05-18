@@ -54,7 +54,7 @@ class AddKeyView(UnfoldModelAdminViewMixin, FormView):
             try:
                 user = User.objects.get(user_id=data['telegram_id'])
             except User.DoesNotExist:
-                messages.error(request, f'Пользователя с telegram_id {data['telegram_id']} нет в базе даных' )
+                messages.error(request, f'Пользователя с telegram_id {data["telegram_id"]} нет в базе даных' )
                 return redirect('/admin/')
 
             if data['days_count'] < 1:
@@ -75,7 +75,7 @@ class AddKeyView(UnfoldModelAdminViewMixin, FormView):
                 messages.error(request, f"Ошибка соединения c сервером менеджером: {str(e)}")
                 return redirect('/admin/')
             messages.success(request, f"Новый ключ {create_user.json()['result'][0]['uuid']} успешно добавлен пользователю {data['telegram_id']}!")
-            return redirect(reverse('admin:vpnpanel_clientaskey_changelist')+ f'?telegram_id={data['telegram_id']}')
+            return redirect(reverse('admin:vpnpanel_clientaskey_changelist')+ f'?telegram_id={data["telegram_id"]}')
         else:
             return self.form_invalid(form)
         
@@ -92,7 +92,7 @@ class DeleteAllKeysView(UnfoldModelAdminViewMixin, FormView):
             try:
                 user = User.objects.get(user_id=data['telegram_id'])
             except User.DoesNotExist:
-                messages.error(request, f'Пользователя с telegram_id {data['telegram_id']} нет в базе даных' )
+                messages.error(request, f'Пользователя с telegram_id {data["telegram_id"]} нет в базе даных' )
                 return redirect('/admin/')   
             expired_timestamp = int(time.mktime((datetime.now() - timedelta(days=1)).timetuple()))
             ClientAsKey.objects.filter(telegram_id=data['telegram_id']).update(expiration_date=expired_timestamp)
@@ -103,7 +103,7 @@ class DeleteAllKeysView(UnfoldModelAdminViewMixin, FormView):
                 messages.error(request, f"Ошибка соединения c сервером менеджером: {str(e)}")
                 return redirect('/admin/')
             messages.success(request, f"Все ключи успешно удалены пользователю {data['telegram_id']}!")
-            return redirect(reverse('admin:vpnpanel_clientaskey_changelist')+ f'?telegram_id={data['telegram_id']}')
+            return redirect(reverse('admin:vpnpanel_clientaskey_changelist')+ f'?telegram_id={data["telegram_id"]}')
         else:
             return self.form_invalid(form)
         
@@ -172,7 +172,7 @@ class GetConfigFilesView(UnfoldModelAdminViewMixin, FormView):
             try:
                 server = Server.objects.get(host=data['host'], created=1)
             except Server.DoesNotExist:
-                messages.error(request, f'Сервера {data['host']} нет в базе')
+                messages.error(request, f'Сервера {data["host"]} нет в базе')
                 return redirect(reverse("admin:vpnpanel_server_changelist"))
 
             try:
@@ -182,7 +182,7 @@ class GetConfigFilesView(UnfoldModelAdminViewMixin, FormView):
                         response.iter_content(chunk_size=8192),
                         content_type=response.headers.get('content-type', 'application/octet-stream')
                     )
-                    django_response['Content-Disposition'] = response.headers.get('content-disposition', f'attachment; filename="{data['host']}_config.yaml"')
+                    django_response['Content-Disposition'] = response.headers.get('content-disposition', f'attachment; filename="{data["host"]}_config.yaml"')
                     return django_response
             except requests.RequestException as e:
                 try:
@@ -209,13 +209,13 @@ class TransferClientsFromServerToServerView(UnfoldModelAdminViewMixin, FormView)
             try:
                 server_from = Server.objects.get(host=data['host_from'], created=1)
             except Server.DoesNotExist:
-                messages.error(request, f'Сервера {data['host_from']} нет в базе')
+                messages.error(request, f'Сервера {data["host_from"]} нет в базе')
                 return redirect(reverse("admin:vpnpanel_server_changelist"))
 
             try:
                 server_to = Server.objects.get(host=data['host_to'], created=1)
             except Server.DoesNotExist:
-                messages.error(request, f'Сервера {data['host_to']} нет в базе')
+                messages.error(request, f'Сервера {data["host_to"]} нет в базе')
                 return redirect(reverse("admin:vpnpanel_server_changelist"))
             
             try:

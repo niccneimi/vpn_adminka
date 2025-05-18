@@ -1,0 +1,18 @@
+{% extends "unfold/layouts/base.html" %}
+{% load unfold i18n %}
+
+{% block content %}
+<form method="post" novalidate>
+    <div class="aligned border border-base-200 mb-8 rounded-default pt-3 px-3 shadow-sm dark:border-base-800">
+        {% csrf_token %}
+        {% for field in form %}
+            {% include "unfold/helpers/field.html" with field=field %}
+        {% endfor %}
+    </div>
+    <div class="flex justify-end">
+        {% component "unfold/components/button.html" with submit=1 %}
+            {% trans "Перенести клиентов" %}
+        {% endcomponent %}
+    </div>
+</form>
+{% endblock %}

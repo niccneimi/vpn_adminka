@@ -168,6 +168,10 @@ UNFOLD = {
                 {
                     "title": "Выгрузить файл конфигурации",
                     "link": reverse_lazy("admin:vpnpanel_server_export_config")
+                },
+                {
+                    "title": "Перенести клиентов с сервера на сервер",
+                    "link": reverse_lazy("admin:vpnpanel_server_transfer_clients")
                 }
             ]
         }

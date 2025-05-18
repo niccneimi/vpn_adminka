@@ -30,3 +30,8 @@ class ExtendKeyForm(forms.Form):
 # Форма для получения файлов конфигурации с клиентами
 class GetConfigFilesForm(forms.Form):
     host = forms.CharField(label="Хост сервера", required=True, widget=UnfoldAdminTextInputWidget())
+
+# Форма для перенос клиентов с сервера на сервер
+class TransferClientsForm(forms.Form):
+    host_from = forms.CharField(label="С сервера(старый хост)", required=True, widget=UnfoldAdminTextInputWidget())
+    host_to = forms.CharField(label="На сервер(новый хост)", required=True, widget=UnfoldAdminTextInputWidget())

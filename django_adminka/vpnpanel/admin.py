@@ -5,8 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.html import format_html
 from django.contrib import messages
 from .models import Server, Order, User, ClientAsKey
-from .forms import AddServerForm
-from .views import BotSendView, AddKeyView, DeleteAllKeysView, ExtendKeyView, AddServerView, GetConfigFilesView
+from .views import BotSendView, AddKeyView, DeleteAllKeysView, ExtendKeyView, AddServerView, GetConfigFilesView, TransferClientsFromServerToServerView
 from datetime import datetime
 import requests
 from django.db.models import Max
@@ -48,12 +47,17 @@ class ServersAdmin(ModelAdmin):
     def get_urls(self):
         addserverview = self.admin_site.admin_view(AddServerView.as_view(model_admin=self))
         exportconfigview = self.admin_site.admin_view(GetConfigFilesView.as_view(model_admin=self))
+        tranferclientsview = self.admin_site.admin_view(TransferClientsFromServerToServerView.as_view(model_admin=self)) 
+
         custom_urls = [
             path(
                 'add-server/', addserverview, name='vpnpanel_server_add_server'
             ),
             path(
                 'export-config/', exportconfigview, name='vpnpanel_server_export_config'
+            ),
+            path(
+                'tranfer-clients', tranferclientsview, name='vpnpanel_server_transfer_clients'
             )
         ]
         return custom_urls + super().get_urls()

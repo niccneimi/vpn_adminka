@@ -1,5 +1,5 @@
 from unfold.views import UnfoldModelAdminViewMixin
-from .forms import BotSendForm, AddKeyForm, DeleteAllKeysForm, ExtendKeyForm, AddServerForm, GetConfigFilesForm
+from .forms import BotSendForm, AddKeyForm, DeleteAllKeysForm, ExtendKeyForm, AddServerForm, GetConfigFilesForm, TransferClientsForm
 from django.views.generic import FormView
 from django.contrib import messages
 from datetime import datetime, timedelta, timezone
@@ -192,5 +192,57 @@ class GetConfigFilesView(UnfoldModelAdminViewMixin, FormView):
                 messages.error(request, f"Ошибка при отправке: {error_detail}")
                 return redirect('/admin/')
             return redirect(reverse("admin:vpnpanel_server_changelist"))
+        else:
+            return self.form_invalid(form)
+
+class TransferClientsFromServerToServerView(UnfoldModelAdminViewMixin, FormView):
+    title = "Перенести клиентов"
+    template_name = "admin/transfer_clients.html"
+    permission_required = ()
+    form_class = TransferClientsForm
+
+    def post(self, request, *args, **kwargs):
+        form = TransferClientsForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+
+            try:
+                server_from = Server.objects.get(host=data['host_from'], created=1)
+            except Server.DoesNotExist:
+                messages.error(request, f'Сервера {data['host_from']} нет в базе')
+                return redirect(reverse("admin:vpnpanel_server_changelist"))
+
+            try:
+                server_to = Server.objects.get(host=data['host_to'], created=1)
+            except Server.DoesNotExist:
+                messages.error(request, f'Сервера {data['host_to']} нет в базе')
+                return redirect(reverse("admin:vpnpanel_server_changelist"))
+            
+            try:
+                url = (
+                    f"http://{settings.MANAGER_SERVER_HOST}:{settings.MANAGER_SERVER_PORT}/transfer-clients?"
+                    f"host_to={data['host_to']}&"
+                    f"password_to={server_to.password}&"
+                    f"username_to={server_to.username}&"
+                    f"port_to={server_to.port}&"
+                    f"host_from={data['host_from']}&"
+                    f"password_from={server_from.password}&"
+                    f"username_from={server_from.username}&"
+                    f"port_from={server_from.port}"
+                )
+                response = requests.get(url)
+                if response.status_code == 200:
+                    ClientAsKey.objects.filter(host=data['host_from']).update(host=data['host_to'], public_key=server_to.public_key)
+                    messages.success(request, f"Клиенты перенесены!")
+                    return redirect(reverse("admin:vpnpanel_server_changelist"))
+            except requests.RequestException as e:
+                try:
+                    error_detail = response.json().get('detail', str(e))
+                except Exception:
+                    error_detail = str(e)
+                messages.error(request, f"Ошибка при отправке: {error_detail}")
+                return redirect('/admin/')
+            return redirect(reverse("admin:vpnpanel_server_changelist"))
+            
         else:
             return self.form_invalid(form)

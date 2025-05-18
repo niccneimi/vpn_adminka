@@ -1,11 +1,12 @@
 from unfold.views import UnfoldModelAdminViewMixin
-from .forms import BotSendForm, AddKeyForm, DeleteAllKeysForm, ExtendKeyForm, AddServerForm
+from .forms import BotSendForm, AddKeyForm, DeleteAllKeysForm, ExtendKeyForm, AddServerForm, GetConfigFilesForm
 from django.views.generic import FormView
 from django.contrib import messages
 from datetime import datetime, timedelta, timezone
 import time
 from django.conf import settings
-from .models import User, ClientAsKey
+from django.http import HttpResponse
+from .models import User, ClientAsKey, Server
 import requests
 from django.urls import reverse
 
@@ -146,6 +147,43 @@ class AddServerView(UnfoldModelAdminViewMixin, FormView):
                 response = requests.post(f"http://{settings.MANAGER_SERVER_HOST}:{settings.MANAGER_SERVER_PORT}/add_server", json=data)
                 response.raise_for_status()
                 messages.success(request, "Сервер успешно отправлен на обработку!")
+            except requests.RequestException as e:
+                try:
+                    error_detail = response.json().get('detail', str(e))
+                except Exception:
+                    error_detail = str(e)
+                messages.error(request, f"Ошибка при отправке: {error_detail}")
+                return redirect('/admin/')
+            return redirect(reverse("admin:vpnpanel_server_changelist"))
+        else:
+            return self.form_invalid(form)
+        
+class GetConfigFilesView(UnfoldModelAdminViewMixin, FormView):
+    title = "Выгрузить файл конфигурации"
+    template_name = "admin/export_config.html"
+    permission_required = ()
+    form_class = GetConfigFilesForm
+
+    def post(self, request, *args, **kwargs):
+        form = GetConfigFilesForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+
+            try:
+                server = Server.objects.get(host=data['host'], created=1)
+            except Server.DoesNotExist:
+                messages.error(request, f'Сервера {data['host']} нет в базе')
+                return redirect(reverse("admin:vpnpanel_server_changelist"))
+
+            try:
+                response = requests.get(f"http://{settings.MANAGER_SERVER_HOST}:{settings.MANAGER_SERVER_PORT}/export-config?host={data['host']}&username={server.username}&password={server.password}&port={server.port}")
+                if response.status_code == 200:
+                    django_response = HttpResponse(
+                        response.iter_content(chunk_size=8192),
+                        content_type=response.headers.get('content-type', 'application/octet-stream')
+                    )
+                    django_response['Content-Disposition'] = response.headers.get('content-disposition', f'attachment; filename="{data['host']}_config.yaml"')
+                    return django_response
             except requests.RequestException as e:
                 try:
                     error_detail = response.json().get('detail', str(e))

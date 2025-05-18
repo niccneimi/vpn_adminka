@@ -26,3 +26,7 @@ class DeleteAllKeysForm(forms.Form):
 class ExtendKeyForm(forms.Form):
     key_uuid = forms.CharField(label="UUID ключа", required=True, widget=UnfoldAdminTextInputWidget())
     days_count = forms.IntegerField(label="Количество дней", min_value=1, required=True, widget=UnfoldAdminIntegerFieldWidget())
+
+# Форма для получения файлов конфигурации с клиентами
+class GetConfigFilesForm(forms.Form):
+    host = forms.CharField(label="Хост сервера", required=True, widget=UnfoldAdminTextInputWidget())

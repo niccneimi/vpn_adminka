@@ -6,7 +6,7 @@ from django.utils.html import format_html
 from django.contrib import messages
 from .models import Server, Order, User, ClientAsKey
 from .forms import AddServerForm
-from .views import BotSendView, AddKeyView, DeleteAllKeysView, ExtendKeyView, AddServerView
+from .views import BotSendView, AddKeyView, DeleteAllKeysView, ExtendKeyView, AddServerView, GetConfigFilesView
 from datetime import datetime
 import requests
 from django.db.models import Max
@@ -44,34 +44,19 @@ def financial_report_view(request):
 @admin.register(Server)
 class ServersAdmin(ModelAdmin):
     list_display = ('host', 'port', 'username', 'password', 'location', 'clients_on_server', 'created_at')
+
     def get_urls(self):
         addserverview = self.admin_site.admin_view(AddServerView.as_view(model_admin=self))
+        exportconfigview = self.admin_site.admin_view(GetConfigFilesView.as_view(model_admin=self))
         custom_urls = [
             path(
                 'add-server/', addserverview, name='vpnpanel_server_add_server'
             ),
+            path(
+                'export-config/', exportconfigview, name='vpnpanel_server_export_config'
+            )
         ]
         return custom_urls + super().get_urls()
-
-    def add_server_view(self, request):
-        if request.method == 'POST':
-            form = AddServerForm(request.POST)
-            if form.is_valid():
-                data = form.cleaned_data
-                try:
-                    response = requests.post("http://localhost:8081/add_server", json=data)
-                    response.raise_for_status()
-                    messages.success(request, "Сервер успешно отправлен на обработку!")
-                except requests.RequestException as e:
-                    try:
-                        error_detail = response.json().get('detail', str(e))
-                    except Exception:
-                        error_detail = str(e)
-                    messages.error(request, f"Ошибка при отправке: {error_detail}")
-                return redirect(request.path)
-        else:
-            form = AddServerForm()
-        return render(request, 'admin/add_server_form.html', {'form': form})
 
 @admin.register(User)
 class UserAdmin(ModelAdmin):

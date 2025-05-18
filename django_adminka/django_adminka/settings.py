@@ -164,6 +164,10 @@ UNFOLD = {
                 {
                     "title": "Добавить сервер",
                     "link": reverse_lazy("admin:vpnpanel_server_add_server")
+                },
+                {
+                    "title": "Выгрузить файл конфигурации",
+                    "link": reverse_lazy("admin:vpnpanel_server_export_config")
                 }
             ]
         }

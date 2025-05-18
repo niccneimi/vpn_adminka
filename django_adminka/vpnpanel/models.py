@@ -7,6 +7,10 @@ class User(models.Model):
     free_trial_used = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def client_keys(self):
+        return ClientAsKey.objects.filter(telegram_id=str(self.user_id))
+
     class Meta:
         db_table = 'users'
         managed = False

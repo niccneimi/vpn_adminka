@@ -127,6 +127,23 @@ UNFOLD = {
             "title": _("Рассылка в боте"),
             "link": "/admin/vpnpanel/user/bot-sending/",
         },
+    ],
+    "TABS": [
+        {
+            "models": [
+                "vpnpanel.user"
+            ],
+            "items":[
+                {
+                    "title": "Пользователи",
+                    "link": reverse_lazy("admin:vpnpanel_user_changelist")
+                },
+                {
+                    "title": "Добавить ключ пользователю",
+                    "link": reverse_lazy("admin:vpnpanel_user_add_key")
+                }
+            ]
+        }
     ]
 }
 
@@ -154,3 +171,6 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 TELEGRAM_BOT_TOKEN = '5994614957:AAErnXd8AphhYDCia7yy-jjfvG_TKxuo8jU'
+
+MANAGER_SERVER_HOST = '91.84.111.102'
+MANAGER_SERVER_PORT = '8081'

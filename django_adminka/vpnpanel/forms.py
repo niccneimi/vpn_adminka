@@ -1,5 +1,5 @@
 from django import forms
-from unfold.widgets import UnfoldAdminTextareaWidget
+from unfold.widgets import UnfoldAdminTextareaWidget, UnfoldAdminTextInputWidget, UnfoldAdminIntegerFieldWidget
 
 # Форма для добавления vpn сервера
 class AddServerForm(forms.Form):
@@ -15,12 +15,8 @@ class BotSendForm(forms.Form):
 
 # Форма для добавления ключа
 class AddKeyForm(forms.Form):
-    telegram_id = forms.CharField(max_length=255)
-    host = forms.CharField(max_length=255, required=False)
-    uuid = forms.CharField(max_length=255, required=False)
-    email = forms.EmailField(required=False)
-    public_key = forms.CharField(max_length=255, required=False)
-    expiration_date = forms.IntegerField(required=False, help_text="Unix timestamp")
+    telegram_id = forms.CharField(label="Telegram ID", required=True, widget=UnfoldAdminTextInputWidget())
+    days_count = forms.IntegerField(label="Количество дней", min_value=1, required=True, widget=UnfoldAdminIntegerFieldWidget())
 
 # Форма для продления подписки
 class ExtendSubscriptionForm(forms.Form):

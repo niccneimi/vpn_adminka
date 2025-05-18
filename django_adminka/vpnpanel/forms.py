@@ -17,16 +17,12 @@ class BotSendForm(forms.Form):
 class AddKeyForm(forms.Form):
     telegram_id = forms.CharField(label="Telegram ID", required=True, widget=UnfoldAdminTextInputWidget())
     days_count = forms.IntegerField(label="Количество дней", min_value=1, required=True, widget=UnfoldAdminIntegerFieldWidget())
-
+    
+# Форма для удаления всех ключей пользователю
 class DeleteAllKeysForm(forms.Form):
     telegram_id = forms.CharField(label="Telegram ID", required=True, widget=UnfoldAdminTextInputWidget())
 
 # Форма для продления подписки
-class ExtendSubscriptionForm(forms.Form):
-    user_id = forms.IntegerField(widget=forms.HiddenInput())
-    days = forms.IntegerField(min_value=1, label="Количество дней продления")
-
-# Форма для изменения статуса тестового периода
-class ChangeFreeTrialStatusForm(forms.Form):
-    user_id = forms.IntegerField(widget=forms.HiddenInput())
-    free_trial_used = forms.IntegerField(min_value=0, max_value=1, label="Использован тестовый период (0 или 1)")
+class ExtendKeyForm(forms.Form):
+    key_uuid = forms.CharField(label="UUID ключа", required=True, widget=UnfoldAdminTextInputWidget())
+    days_count = forms.IntegerField(label="Количество дней", min_value=1, required=True, widget=UnfoldAdminIntegerFieldWidget())

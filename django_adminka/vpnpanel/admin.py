@@ -4,10 +4,9 @@ from django.urls import path, reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.html import format_html
 from django.contrib import messages
-from django.conf import settings
 from .models import Server, Order, User, ClientAsKey
-from .forms import AddServerForm, ExtendSubscriptionForm, ChangeFreeTrialStatusForm
-from .views import BotSendView, AddKeyView, DeleteAllKeysView
+from .forms import AddServerForm
+from .views import BotSendView, AddKeyView, DeleteAllKeysView, ExtendKeyView
 from datetime import datetime
 import requests
 from django.db.models import Max
@@ -91,6 +90,7 @@ class UserAdmin(ModelAdmin):
         botsendview = self.admin_site.admin_view(BotSendView.as_view(model_admin=self))
         addkeyview = self.admin_site.admin_view(AddKeyView.as_view(model_admin=self))
         deleteallkeys = self.admin_site.admin_view(DeleteAllKeysView.as_view(model_admin=self))
+        extendkey = self.admin_site.admin_view(ExtendKeyView.as_view(model_admin=self))
         return [
             path(
                 "bot-sending/", botsendview, name="vpnpanel_user_bot_sending"
@@ -100,53 +100,11 @@ class UserAdmin(ModelAdmin):
             ),
             path(
                 "delete-all-keys/", deleteallkeys, name="vpnpanel_user_delete_all_keys"
+            ),
+            path(
+                "extend-key/", extendkey, name="vpnpanel_user_extend_key"
             )
         ] + super().get_urls() 
-
-    def change_trial_status_view(self, request, user_id):
-        user = get_object_or_404(User, pk=user_id)
-        if request.method == 'POST':
-            form = ChangeFreeTrialStatusForm(request.POST)
-            if form.is_valid():
-                user.free_trial_used = form.cleaned_data['free_trial_used']
-                user.save()
-                messages.success(request, f"Статус тестового периода изменен для пользователя {user_id}")
-                return redirect(f'../../')
-        else:
-            form = ChangeFreeTrialStatusForm(initial={'user_id': user_id, 'free_trial_used': user.free_trial_used})
-        context = dict(
-            self.admin_site.each_context(request),
-            form=form,
-            user=user,
-            title=f"Изменить статус тестового периода пользователя {user_id}"
-        )
-        return render(request, 'admin/change_trial_status_form.html', context)
-
-    def extend_subscription_view(self, request, user_id):
-        user = get_object_or_404(User, pk=user_id)
-        if request.method == 'POST':
-            form = ExtendSubscriptionForm(request.POST)
-            if form.is_valid():
-                days = form.cleaned_data['days']
-                # Получаем последний заказ, чтобы продлить expiration_date
-                last_order = Order.objects.filter(user=user).order_by('-expiration_date').first()
-                if last_order and last_order.expiration_date:
-                    new_expiration = last_order.expiration_date + days * 86400
-                    last_order.expiration_date = new_expiration
-                    last_order.save()
-                    messages.success(request, f"Подписка продлена на {days} дней для пользователя {user_id}")
-                else:
-                    messages.error(request, "Не найден заказ для продления подписки")
-                return redirect(f'../../')
-        else:
-            form = ExtendSubscriptionForm(initial={'user_id': user_id})
-        context = dict(
-            self.admin_site.each_context(request),
-            form=form,
-            user=user,
-            title=f"Продлить подписку пользователя {user_id}"
-        )
-        return render(request, 'admin/extend_subscription_form.html', context)
     
 @admin.register(ClientAsKey)
 class ClientAsKeyAdmin(admin.ModelAdmin):

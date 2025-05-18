@@ -1,5 +1,5 @@
 from unfold.views import UnfoldModelAdminViewMixin
-from .forms import BotSendForm, AddKeyForm, DeleteAllKeysForm
+from .forms import BotSendForm, AddKeyForm, DeleteAllKeysForm, ExtendKeyForm
 from django.views.generic import FormView
 from django.contrib import messages
 from datetime import datetime, timedelta, timezone
@@ -103,5 +103,30 @@ class DeleteAllKeysView(UnfoldModelAdminViewMixin, FormView):
                 return redirect('/admin/')
             messages.success(request, f"Все ключи успешно удалены пользователю {data['telegram_id']}!")
             return redirect(reverse('admin:vpnpanel_clientaskey_changelist')+ f'?telegram_id={data['telegram_id']}')
+        else:
+            return self.form_invalid(form)
+        
+class ExtendKeyView(UnfoldModelAdminViewMixin, FormView):
+    title = "Продлить ключ"
+    template_name = "admin/extend_key.html"
+    permission_required = ()
+    form_class = ExtendKeyForm
+
+    def post(self, request, *args, **kwargs):
+        form = ExtendKeyForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            try:
+                key = ClientAsKey.objects.get(uuid=data['key_uuid'], deleted=0)
+            except ClientAsKey.DoesNotExist:
+                messages.error(request, f'Ключа с uuid {data["key_uuid"]} нет в базе или он удалён из неё')
+                return redirect('/admin/')
+            
+            if data['days_count'] < 1:
+                messages.error(request, f'Количество дней должно быть больше 1' )
+                return redirect('/admin/')
+            ClientAsKey.objects.filter(uuid=data['key_uuid'], deleted=0).update(expiration_date=(key.expiration_date + data['days_count'] * 24 * 60 * 60))
+            messages.success(request, f"Ключ {key.uuid} успешно продлён пользователю {key.telegram_id} на {data['days_count']} дней!")
+            return redirect(reverse('admin:vpnpanel_clientaskey_changelist')+ f'?telegram_id={key.telegram_id}')
         else:
             return self.form_invalid(form)

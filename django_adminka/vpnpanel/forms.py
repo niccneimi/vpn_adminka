@@ -18,6 +18,9 @@ class AddKeyForm(forms.Form):
     telegram_id = forms.CharField(label="Telegram ID", required=True, widget=UnfoldAdminTextInputWidget())
     days_count = forms.IntegerField(label="Количество дней", min_value=1, required=True, widget=UnfoldAdminIntegerFieldWidget())
 
+class DeleteAllKeysForm(forms.Form):
+    telegram_id = forms.CharField(label="Telegram ID", required=True, widget=UnfoldAdminTextInputWidget())
+
 # Форма для продления подписки
 class ExtendSubscriptionForm(forms.Form):
     user_id = forms.IntegerField(widget=forms.HiddenInput())

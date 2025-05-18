@@ -6,8 +6,8 @@ from django.utils.html import format_html
 from django.contrib import messages
 from django.conf import settings
 from .models import Server, Order, User, ClientAsKey
-from .forms import AddServerForm, AddKeyForm, ExtendSubscriptionForm, ChangeFreeTrialStatusForm
-from .views import BotSendView, AddKeyView
+from .forms import AddServerForm, ExtendSubscriptionForm, ChangeFreeTrialStatusForm
+from .views import BotSendView, AddKeyView, DeleteAllKeysView
 from datetime import datetime
 import requests
 from django.db.models import Max
@@ -90,7 +90,7 @@ class UserAdmin(ModelAdmin):
     def get_urls(self):
         botsendview = self.admin_site.admin_view(BotSendView.as_view(model_admin=self))
         addkeyview = self.admin_site.admin_view(AddKeyView.as_view(model_admin=self))
-
+        deleteallkeys = self.admin_site.admin_view(DeleteAllKeysView.as_view(model_admin=self))
         return [
             path(
                 "bot-sending/", botsendview, name="vpnpanel_user_bot_sending"
@@ -98,47 +98,10 @@ class UserAdmin(ModelAdmin):
             path(
                 "add-key/", addkeyview, name="vpnpanel_user_add_key"
             ),
+            path(
+                "delete-all-keys/", deleteallkeys, name="vpnpanel_user_delete_all_keys"
+            )
         ] + super().get_urls() 
-    
-    # Представления для кастомных действий
-    # def add_key_view(self, request, user_id):
-    #     user = get_object_or_404(User, pk=user_id)
-    #     if request.method == 'POST':
-    #         form = AddKeyForm(request.POST)
-    #         if form.is_valid():
-    #             data = form.cleaned_data
-    #             ClientAsKey.objects.create(
-    #                 telegram_id=data['telegram_id'],
-    #                 host=data.get('host'),
-    #                 uuid=data.get('uuid'),
-    #                 email=data.get('email'),
-    #                 public_key=data.get('public_key'),
-    #                 expiration_date=data.get('expiration_date') or 0,
-    #                 deleted=0,
-    #             )
-    #             messages.success(request, f"Ключ успешно добавлен пользователю {user_id}")
-    #             return redirect(f'../../')
-    #     else:
-    #         form = AddKeyForm(initial={'telegram_id': user_id})
-    #     context = dict(
-    #         self.admin_site.each_context(request),
-    #         form=form,
-    #         user=user,
-    #         title=f"Добавить ключ пользователю {user_id}"
-    #     )
-    #     return render(request, 'admin/add_key_form.html', context)
-
-    def delete_keys_view(self, request, user_id):
-        if request.method == 'POST':
-            deleted_count, _ = ClientAsKey.objects.filter(telegram_id=str(user_id)).delete()
-            messages.success(request, f"Удалено {deleted_count} ключей пользователя {user_id}")
-            return redirect(f'../../')
-        context = dict(
-            self.admin_site.each_context(request),
-            user_id=user_id,
-            title=f"Удалить все ключи пользователя {user_id}"
-        )
-        return render(request, 'admin/confirm_delete_keys.html', context)
 
     def change_trial_status_view(self, request, user_id):
         user = get_object_or_404(User, pk=user_id)
@@ -186,6 +149,15 @@ class UserAdmin(ModelAdmin):
         return render(request, 'admin/extend_subscription_form.html', context)
     
 @admin.register(ClientAsKey)
-class ClientAsKeyAdmin(ModelAdmin):
-    list_display = ('telegram_id', 'host', 'uuid', 'created_at')
+class ClientAsKeyAdmin(admin.ModelAdmin):
+    list_display = ('telegram_id', 'host', 'uuid', 'created_at', 'formatted_expiration_date', 'deleted')
     ordering = ('-created_at',)
+
+    def formatted_expiration_date(self, obj):
+        if obj.expiration_date:
+            dt = datetime.fromtimestamp(obj.expiration_date)
+            formatted = dt.strftime('%b %d, %Y, %-I:%M %p')
+            formatted = formatted.replace('AM', 'a.m.').replace('PM', 'p.m.')
+            return formatted
+        return '-'
+    formatted_expiration_date.short_description = 'Дата истечения'

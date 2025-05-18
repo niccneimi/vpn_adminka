@@ -141,6 +141,10 @@ UNFOLD = {
                 {
                     "title": "Добавить ключ пользователю",
                     "link": reverse_lazy("admin:vpnpanel_user_add_key")
+                },
+                {
+                    "title": "Удалить ключи пользователю",
+                    "link": reverse_lazy("admin:vpnpanel_user_delete_all_keys")
                 }
             ]
         }

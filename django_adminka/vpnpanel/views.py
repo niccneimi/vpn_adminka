@@ -117,11 +117,12 @@ class ExtendKeyView(UnfoldModelAdminViewMixin, FormView):
         form = ExtendKeyForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            try:
-                key = ClientAsKey.objects.get(uuid=data['key_uuid'], deleted=0)
-            except ClientAsKey.DoesNotExist:
+
+            keys = ClientAsKey.objects.filter(uuid=data['key_uuid'], deleted=0)
+            if not keys.exists():
                 messages.error(request, f'Ключа с uuid {data["key_uuid"]} нет в базе или он удалён из неё')
                 return redirect('/admin/')
+            key = keys.first()
             
             if data['days_count'] < 1:
                 messages.error(request, f'Количество дней должно быть больше 1' )

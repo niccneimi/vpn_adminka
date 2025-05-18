@@ -1,5 +1,5 @@
 from unfold.views import UnfoldModelAdminViewMixin
-from .forms import BotSendForm, AddKeyForm, DeleteAllKeysForm, ExtendKeyForm
+from .forms import BotSendForm, AddKeyForm, DeleteAllKeysForm, ExtendKeyForm, AddServerForm
 from django.views.generic import FormView
 from django.contrib import messages
 from datetime import datetime, timedelta, timezone
@@ -125,8 +125,34 @@ class ExtendKeyView(UnfoldModelAdminViewMixin, FormView):
             if data['days_count'] < 1:
                 messages.error(request, f'Количество дней должно быть больше 1' )
                 return redirect('/admin/')
+            
             ClientAsKey.objects.filter(uuid=data['key_uuid'], deleted=0).update(expiration_date=(key.expiration_date + data['days_count'] * 24 * 60 * 60))
             messages.success(request, f"Ключ {key.uuid} успешно продлён пользователю {key.telegram_id} на {data['days_count']} дней!")
             return redirect(reverse('admin:vpnpanel_clientaskey_changelist')+ f'?telegram_id={key.telegram_id}')
+        else:
+            return self.form_invalid(form)
+        
+class AddServerView(UnfoldModelAdminViewMixin, FormView):
+    title = "Добавить сервер"
+    template_name = "admin/add_server.html"
+    permission_required = ()
+    form_class = AddServerForm
+
+    def post(self, request, *args, **kwargs):
+        form = AddServerForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            try:
+                response = requests.post(f"http://{settings.MANAGER_SERVER_HOST}:{settings.MANAGER_SERVER_PORT}/add_server", json=data)
+                response.raise_for_status()
+                messages.success(request, "Сервер успешно отправлен на обработку!")
+            except requests.RequestException as e:
+                try:
+                    error_detail = response.json().get('detail', str(e))
+                except Exception:
+                    error_detail = str(e)
+                messages.error(request, f"Ошибка при отправке: {error_detail}")
+                return redirect('/admin/')
+            return redirect(reverse("admin:vpnpanel_server_changelist"))
         else:
             return self.form_invalid(form)

@@ -151,7 +151,23 @@ UNFOLD = {
                     "link": reverse_lazy("admin:vpnpanel_user_extend_key")
                 }
             ]
+        },
+        {
+            "models": [
+                "vpnpanel.server"
+            ],
+            "items": [
+                {
+                    "title": "Серверы",
+                    "link": reverse_lazy("admin:vpnpanel_server_changelist")
+                },
+                {
+                    "title": "Добавить сервер",
+                    "link": reverse_lazy("admin:vpnpanel_server_add_server")
+                }
+            ]
         }
+
     ]
 }
 

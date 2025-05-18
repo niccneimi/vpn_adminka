@@ -6,7 +6,7 @@ from django.utils.html import format_html
 from django.contrib import messages
 from .models import Server, Order, User, ClientAsKey
 from .forms import AddServerForm
-from .views import BotSendView, AddKeyView, DeleteAllKeysView, ExtendKeyView
+from .views import BotSendView, AddKeyView, DeleteAllKeysView, ExtendKeyView, AddServerView
 from datetime import datetime
 import requests
 from django.db.models import Max
@@ -45,11 +45,13 @@ def financial_report_view(request):
 class ServersAdmin(ModelAdmin):
     list_display = ('host', 'port', 'username', 'password', 'location', 'clients_on_server', 'created_at')
     def get_urls(self):
-        urls = super().get_urls()
+        addserverview = self.admin_site.admin_view(AddServerView.as_view(model_admin=self))
         custom_urls = [
-            path('add-server/', self.admin_site.admin_view(self.add_server_view), name='add-server-custom'),
+            path(
+                'add-server/', addserverview, name='vpnpanel_server_add_server'
+            ),
         ]
-        return custom_urls + urls
+        return custom_urls + super().get_urls()
 
     def add_server_view(self, request):
         if request.method == 'POST':
@@ -89,8 +91,8 @@ class UserAdmin(ModelAdmin):
     def get_urls(self):
         botsendview = self.admin_site.admin_view(BotSendView.as_view(model_admin=self))
         addkeyview = self.admin_site.admin_view(AddKeyView.as_view(model_admin=self))
-        deleteallkeys = self.admin_site.admin_view(DeleteAllKeysView.as_view(model_admin=self))
-        extendkey = self.admin_site.admin_view(ExtendKeyView.as_view(model_admin=self))
+        deleteallkeysview = self.admin_site.admin_view(DeleteAllKeysView.as_view(model_admin=self))
+        extendkeyview = self.admin_site.admin_view(ExtendKeyView.as_view(model_admin=self))
         return [
             path(
                 "bot-sending/", botsendview, name="vpnpanel_user_bot_sending"
@@ -99,10 +101,10 @@ class UserAdmin(ModelAdmin):
                 "add-key/", addkeyview, name="vpnpanel_user_add_key"
             ),
             path(
-                "delete-all-keys/", deleteallkeys, name="vpnpanel_user_delete_all_keys"
+                "delete-all-keys/", deleteallkeysview, name="vpnpanel_user_delete_all_keys"
             ),
             path(
-                "extend-key/", extendkey, name="vpnpanel_user_extend_key"
+                "extend-key/", extendkeyview, name="vpnpanel_user_extend_key"
             )
         ] + super().get_urls() 
     

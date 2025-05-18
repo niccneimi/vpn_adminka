@@ -1,42 +1,18 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 from django.urls import path
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.conf import settings
-from .models import Server, Order, User
-from .forms import AddServerForm, BotSendForm
+from .models import Server, Order, User, ClientAsKey
+from .forms import AddServerForm, AddKeyForm, ExtendSubscriptionForm, ChangeFreeTrialStatusForm
+from .views import BotSendView
 from datetime import datetime
 import requests
+from django.db.models import Max
 
 original_get_urls = admin.site.get_urls
-
-def bot_send_view(request):
-    if request.method == 'POST':
-        form = BotSendForm(request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            users = User.objects.all()
-            TELEGRAM_TOKEN = settings.TELEGRAM_BOT_TOKEN
-            url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-            try:
-                for user in users:
-                    response = requests.post(
-                        url,
-                        data={
-                            'chat_id': user.user_id,
-                            'text': data['message'],
-                            'parse_mode': 'HTML'
-                        }
-                    )
-                    response.raise_for_status()
-            except requests.RequestException as e:
-                messages.error(request, f"Ошибка соединения: {str(e)}")
-            messages.success(request, "Рассылка завершена!")
-            return redirect(request.path)
-    else:
-        form = BotSendForm()
-    return render(request, 'admin/bot_sending.html', {'form': form})
-
+    
 def financial_report_view(request):
     orders = Order.objects.order_by('-created_at')
 
@@ -65,17 +41,8 @@ def financial_report_view(request):
     )
     return render(request, "admin/financial_report.html", context)
 
-def get_urls():
-    urls = original_get_urls()
-    custom_urls = [
-        path('financial-report/', admin.site.admin_view(financial_report_view), name='financial-report'),
-        path('bot-sending/',admin.site.admin_view(bot_send_view) ,name='bot-sending')
-    ]
-    return custom_urls + urls
-admin.site.get_urls = get_urls
-
 @admin.register(Server)
-class ServersAdmin(admin.ModelAdmin):
+class ServersAdmin(ModelAdmin):
     list_display = ('host', 'port', 'username', 'password', 'location', 'clients_on_server', 'created_at')
     def get_urls(self):
         urls = super().get_urls()
@@ -103,4 +70,122 @@ class ServersAdmin(admin.ModelAdmin):
         else:
             form = AddServerForm()
         return render(request, 'admin/add_server_form.html', {'form': form})
+
+@admin.register(User)
+class UserAdmin(ModelAdmin):
+    list_display = ('user_id', 'name', 'lang', 'free_trial_used', 'created_at', 'subscription_end')
+    list_filter = ('free_trial_used',)
+    search_fields = ('user_id', 'name')
+    ordering = ('-created_at',)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        # Аннотируем максимальную дату окончания подписки из связанных заказов
+        qs = qs.annotate(
+            max_expiration_date=Max('order__expiration_date')
+        )
+        return qs
+    # Для фильтрации по дате окончания подписки (через Order.expiration_date)
+    def subscription_end(self, obj):
+        if obj.max_expiration_date:
+            return datetime.fromtimestamp(obj.max_expiration_date).strftime('%Y-%m-%d')
+        return '-'
+    subscription_end.short_description = "Дата окончания подписки"
+    subscription_end.admin_order_field = 'max_expiration_date' 
+
+    def get_urls(self):
+        custom_view = self.admin_site.admin_view(
+            BotSendView.as_view(model_admin=self)
+        )
+
+        return [
+            path(
+                "bot-sending/", custom_view, name="user-bot-sending"
+            ),
+        ] + super().get_urls() 
+    
+    # Представления для кастомных действий
+    def add_key_view(self, request, user_id):
+        user = get_object_or_404(User, pk=user_id)
+        if request.method == 'POST':
+            form = AddKeyForm(request.POST)
+            if form.is_valid():
+                data = form.cleaned_data
+                ClientAsKey.objects.create(
+                    telegram_id=data['telegram_id'],
+                    host=data.get('host'),
+                    uuid=data.get('uuid'),
+                    email=data.get('email'),
+                    public_key=data.get('public_key'),
+                    expiration_date=data.get('expiration_date') or 0,
+                    deleted=0,
+                )
+                messages.success(request, f"Ключ успешно добавлен пользователю {user_id}")
+                return redirect(f'../../')
+        else:
+            form = AddKeyForm(initial={'telegram_id': user_id})
+        context = dict(
+            self.admin_site.each_context(request),
+            form=form,
+            user=user,
+            title=f"Добавить ключ пользователю {user_id}"
+        )
+        return render(request, 'admin/add_key_form.html', context)
+
+    def delete_keys_view(self, request, user_id):
+        if request.method == 'POST':
+            deleted_count, _ = ClientAsKey.objects.filter(telegram_id=str(user_id)).delete()
+            messages.success(request, f"Удалено {deleted_count} ключей пользователя {user_id}")
+            return redirect(f'../../')
+        context = dict(
+            self.admin_site.each_context(request),
+            user_id=user_id,
+            title=f"Удалить все ключи пользователя {user_id}"
+        )
+        return render(request, 'admin/confirm_delete_keys.html', context)
+
+    def change_trial_status_view(self, request, user_id):
+        user = get_object_or_404(User, pk=user_id)
+        if request.method == 'POST':
+            form = ChangeFreeTrialStatusForm(request.POST)
+            if form.is_valid():
+                user.free_trial_used = form.cleaned_data['free_trial_used']
+                user.save()
+                messages.success(request, f"Статус тестового периода изменен для пользователя {user_id}")
+                return redirect(f'../../')
+        else:
+            form = ChangeFreeTrialStatusForm(initial={'user_id': user_id, 'free_trial_used': user.free_trial_used})
+        context = dict(
+            self.admin_site.each_context(request),
+            form=form,
+            user=user,
+            title=f"Изменить статус тестового периода пользователя {user_id}"
+        )
+        return render(request, 'admin/change_trial_status_form.html', context)
+
+    def extend_subscription_view(self, request, user_id):
+        user = get_object_or_404(User, pk=user_id)
+        if request.method == 'POST':
+            form = ExtendSubscriptionForm(request.POST)
+            if form.is_valid():
+                days = form.cleaned_data['days']
+                # Получаем последний заказ, чтобы продлить expiration_date
+                last_order = Order.objects.filter(user=user).order_by('-expiration_date').first()
+                if last_order and last_order.expiration_date:
+                    new_expiration = last_order.expiration_date + days * 86400
+                    last_order.expiration_date = new_expiration
+                    last_order.save()
+                    messages.success(request, f"Подписка продлена на {days} дней для пользователя {user_id}")
+                else:
+                    messages.error(request, "Не найден заказ для продления подписки")
+                return redirect(f'../../')
+        else:
+            form = ExtendSubscriptionForm(initial={'user_id': user_id})
+        context = dict(
+            self.admin_site.each_context(request),
+            form=form,
+            user=user,
+            title=f"Продлить подписку пользователя {user_id}"
+        )
+        return render(request, 'admin/extend_subscription_form.html', context)
     

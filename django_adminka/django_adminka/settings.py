@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from config import *
+from django.utils.translation import gettext_lazy as _
+from django.urls import reverse_lazy
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -27,16 +29,20 @@ SECRET_KEY = 'django-insecure-u&+%7$5chnuki6e)0!9-ut5g^@i7rju$x-44h%=od9&aumodm2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['91.84.111.102']
+ALLOWED_HOSTS = ['91.84.111.102', '127.0.0.1']
 
+STATIC_ROOT = "static/"
 
 # Application definition
 
 INSTALLED_APPS = [
-    'admin_tools',
-    'admin_tools.theming',
-    'admin_tools.menu',
-    'admin_tools.dashboard',
+    'unfold',
+    'unfold.contrib.filters',
+    'unfold.contrib.forms',
+    'unfold.contrib.inlines',
+    'unfold.contrib.import_export',
+    'unfold.contrib.guardian',
+    'unfold.contrib.simple_history',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -71,7 +77,6 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
             ],
             'loaders': [
-                'admin_tools.template_loaders.Loader',
                 'django.template.loaders.filesystem.Loader',
                 'django.template.loaders.app_directories.Loader',
             ],
@@ -115,6 +120,17 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+UNFOLD = {
+    "SITE_DROPDOWN": [
+        {
+            "icon": "send",
+            "title": _("Рассылка в боте"),
+            "link": "/admin/vpnpanel/user/bot-sending/",
+        },
+    ]
+}
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -136,7 +152,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-ADMIN_TOOLS_MENU = 'django_adminka.menu.CustomMenu'
 
 TELEGRAM_BOT_TOKEN = '5994614957:AAErnXd8AphhYDCia7yy-jjfvG_TKxuo8jU'

@@ -109,3 +109,8 @@ class Server(models.Model):
     class Meta:
         db_table = 'servers'
         managed = False
+
+class Tarifs(models.Model):
+    id = models.AutoField(primary_key=True)
+    price = models.IntegerField(null=False)
+    days = models.IntegerField(null=False)

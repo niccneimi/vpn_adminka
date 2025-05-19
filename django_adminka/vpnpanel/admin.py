@@ -4,7 +4,7 @@ from django.urls import path, reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.html import format_html
 from django.contrib import messages
-from .models import Server, Order, User, ClientAsKey
+from .models import Server, Order, User, ClientAsKey, Tarifs
 from .views import BotSendView, AddKeyView, DeleteAllKeysView, ExtendKeyView, AddServerView, GetConfigFilesView, TransferClientsFromServerToServerView
 from datetime import datetime
 import requests
@@ -98,7 +98,7 @@ class UserAdmin(ModelAdmin):
         ] + super().get_urls() 
     
 @admin.register(ClientAsKey)
-class ClientAsKeyAdmin(admin.ModelAdmin):
+class ClientAsKeyAdmin(ModelAdmin):
     list_display = ('telegram_id', 'host', 'uuid', 'created_at', 'formatted_expiration_date', 'deleted')
     list_filter = ('deleted',)
     ordering = ('-created_at',)
@@ -111,3 +111,7 @@ class ClientAsKeyAdmin(admin.ModelAdmin):
             return formatted
         return '-'
     formatted_expiration_date.short_description = 'Дата истечения'
+
+@admin.register(Tarifs)
+class TarifsAdmin(ModelAdmin):
+    list_display = ('price', 'days')

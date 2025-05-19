@@ -4,7 +4,7 @@ from django.urls import path, reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.html import format_html
 from django.contrib import messages
-from .models import Server, Order, User, ClientAsKey, Tarifs
+from .models import Server, Order, User, ClientAsKey, Tarif
 from .views import BotSendView, AddKeyView, DeleteAllKeysView, ExtendKeyView, AddServerView, GetConfigFilesView, TransferClientsFromServerToServerView
 from datetime import datetime
 import requests
@@ -112,6 +112,6 @@ class ClientAsKeyAdmin(ModelAdmin):
         return '-'
     formatted_expiration_date.short_description = 'Дата истечения'
 
-@admin.register(Tarifs)
+@admin.register(Tarif)
 class TarifsAdmin(ModelAdmin):
     list_display = ('price', 'days')

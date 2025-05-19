@@ -1,14 +1,11 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
 from django.urls import path, reverse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render
 from django.utils.html import format_html
-from django.contrib import messages
 from .models import Server, Order, User, ClientAsKey, Tarif
 from .views import BotSendView, AddKeyView, DeleteAllKeysView, ExtendKeyView, AddServerView, GetConfigFilesView, TransferClientsFromServerToServerView
 from datetime import datetime
-import requests
-from django.db.models import Max
 
 original_get_urls = admin.site.get_urls
     
@@ -115,3 +112,39 @@ class ClientAsKeyAdmin(ModelAdmin):
 @admin.register(Tarif)
 class TarifsAdmin(ModelAdmin):
     list_display = ('price', 'days')
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = (
+        'user_display',
+        'amount_formatted',
+        'currency',
+        'hash_tx',
+        'expiration_date_formatted',
+        'package_size',
+        'promocode_used',
+        'created_at',
+    )
+
+    def user_display(self, obj):
+        return obj.user.user_id if hasattr(obj.user, 'user_id') else str(obj.user)
+    user_display.short_description = 'Telegram ID'
+    user_display.admin_order_field = 'user'
+
+    def amount_formatted(self, obj):
+        return f"{obj.amount:.8f}"
+    amount_formatted.short_description = 'Amount'
+    amount_formatted.admin_order_field = 'amount'
+
+    def hash_tx(self, obj):
+        if obj.extra and isinstance(obj.extra, dict):
+            return obj.extra.get('hash_tx', '-')
+        return '-'
+    hash_tx.short_description = 'Transaction Hash'
+
+    def expiration_date_formatted(self, obj):
+        if obj.expiration_date:
+            return datetime.fromtimestamp(obj.expiration_date).strftime('%b %d, %Y, %I:%M %p').replace('AM', 'a.m.').replace('PM', 'p.m.')
+        return '-'
+    expiration_date_formatted.short_description = 'Expiration Date'
+    expiration_date_formatted.admin_order_field = 'expiration_date'

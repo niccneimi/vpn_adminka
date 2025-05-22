@@ -114,7 +114,7 @@ class TarifsAdmin(ModelAdmin):
     list_display = ('price', 'days')
 
 @admin.register(Order)
-class OrderAdmin(admin.ModelAdmin):
+class OrderAdmin(ModelAdmin):
     list_display = (
         'user_display',
         'amount_formatted',

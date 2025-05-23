@@ -39,7 +39,7 @@ jobs:
 
             cd /root/vpn_adminka
             git reset --hard
-            git pull origin master
+            git pull origin main
 
             if [ "$(docker ps -a -q -f name=vpn_adminka)" ]; then
               docker stop vpn_adminka || true

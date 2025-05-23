@@ -15,6 +15,7 @@ def financial_report_view(request):
     report_data = []
     for order in orders:
         user_id_str = str(order.user.user_id)
+        user_name = order.user.name or ""
         promocode_used = getattr(order, 'promocode_used', None)
         package_period = getattr(order, 'package_size', None)
         expiration_date = getattr(order, 'expiration_date', None)
@@ -27,6 +28,7 @@ def financial_report_view(request):
             'package_end_date': package_end_date,
             'transaction_hash': transaction_hash,
             'telegram_id': user_id_str,
+            'user_name': user_name,
             'package_period': package_period,
             'used_promocode': promocode_used,
         })
@@ -61,10 +63,17 @@ class ServersAdmin(ModelAdmin):
 
 @admin.register(User)
 class UserAdmin(ModelAdmin):
-    list_display = ('user_id', 'lang', 'free_trial_used', 'created_at', 'keys_link')
+    list_display = ('user_id_with_name', 'lang', 'free_trial_used', 'created_at', 'keys_link')
     list_filter = ('free_trial_used',)
     search_fields = ('user_id', 'name')
     ordering = ('-created_at',)
+    
+    def user_id_with_name(self, obj):
+        if obj.name:
+            return f"{obj.user_id} ({obj.name})"
+        return obj.user_id
+    user_id_with_name.short_description = 'Telegram ID (Username)'
+    user_id_with_name.admin_order_field = 'user_id'
 
     def keys_link(self, obj):
         url = (
@@ -96,9 +105,20 @@ class UserAdmin(ModelAdmin):
     
 @admin.register(ClientAsKey)
 class ClientAsKeyAdmin(ModelAdmin):
-    list_display = ('telegram_id', 'host', 'uuid', 'created_at', 'formatted_expiration_date', 'deleted')
+    list_display = ('telegram_id_with_name', 'host', 'uuid', 'created_at', 'formatted_expiration_date', 'deleted')
     list_filter = ('deleted',)
     ordering = ('-created_at',)
+    
+    def telegram_id_with_name(self, obj):
+        try:
+            user = User.objects.get(user_id=obj.telegram_id)
+            if user.name:
+                return f"{obj.telegram_id} ({user.name})"
+        except User.DoesNotExist:
+            pass
+        return obj.telegram_id
+    telegram_id_with_name.short_description = 'Telegram ID (Username)'
+    telegram_id_with_name.admin_order_field = 'telegram_id'
 
     def formatted_expiration_date(self, obj):
         if obj.expiration_date:
@@ -127,8 +147,12 @@ class OrderAdmin(ModelAdmin):
     )
 
     def user_display(self, obj):
-        return obj.user.user_id if hasattr(obj.user, 'user_id') else str(obj.user)
-    user_display.short_description = 'Telegram ID'
+        if hasattr(obj.user, 'user_id'):
+            if obj.user.name:
+                return f"{obj.user.user_id} ({obj.user.name})"
+            return str(obj.user.user_id)
+        return str(obj.user)
+    user_display.short_description = 'Telegram ID (Username)'
     user_display.admin_order_field = 'user'
 
     def amount_formatted(self, obj):

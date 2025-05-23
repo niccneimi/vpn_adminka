@@ -1,4 +1,9 @@
-DATABASE_HOST = "91.84.111.102"
-DATABASE_NAME = "vpnbotdatabase"
-DATABASE_USERNAME = "niccneimivpn"
-DATABASE_PASSWORD = "securepassword"
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DATABASE_HOST = os.getenv("DATABASE_HOST")
+DATABASE_NAME = os.getenv("DATABASE_NAME")
+DATABASE_USERNAME = os.getenv("DATABASE_USERNAME")
+DATABASE_PASSWORD = os.getenv("DATABASE_PASSWORD")

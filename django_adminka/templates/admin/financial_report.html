@@ -23,7 +23,12 @@
             <td>{{ row.currency }}</td>
             <td>{{ row.package_end_date }}</td>
             <td>{{ row.transaction_hash|default:"-" }}</td>
-            <td>{{ row.telegram_id|default:"-" }}</td>
+            <td>
+                {{ row.telegram_id|default:"-" }}
+                {% if row.user_name %}
+                ({{ row.user_name }})
+                {% endif %}
+            </td>
             <td>{{ row.package_period|default:"-" }}</td>
             <td>{% if row.used_promocode %}Да{% else %}Нет{% endif %}</td>
         </tr>

@@ -3,7 +3,7 @@ name: Deploy to server via SSH
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:

@@ -1,9 +1,4 @@
 from django.views.generic import TemplateView
-from unfold.views import UnfoldModelAdminViewMixin
-from .statistics import (
-    get_users_statistics, get_servers_statistics, 
-    get_client_access_logs, get_time_period_data
-)
 from django.contrib.admin.views.decorators import staff_member_required
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -11,12 +6,19 @@ from .models import ClientAsKey
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from django.contrib import admin
+from .statistics import (
+    get_users_statistics, get_servers_statistics, 
+    get_client_access_logs, get_time_period_data
+)
 
-class AdminViewMixin(LoginRequiredMixin, UnfoldModelAdminViewMixin):
-    """Миксин для добавления контекста админки."""
+class UnfoldStyleViewMixin(LoginRequiredMixin):
+    """Миксин для имитации стиля Unfold без зависимости от UnfoldModelAdminViewMixin."""
+    title = None
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
+        # Добавляем стандартный контекст админки
         context.update(admin.site.each_context(self.request))
         
         # Добавляем основные переменные админ-контекста
@@ -25,10 +27,23 @@ class AdminViewMixin(LoginRequiredMixin, UnfoldModelAdminViewMixin):
         context['is_nav_sidebar_enabled'] = True
         context['available_apps'] = admin.site.get_app_list(self.request)
         
+        # Добавляем заголовок в стиле Unfold
+        if self.title:
+            context['title'] = self.title
+            context['subtitle'] = ''
+            context['opts'] = {'app_label': 'statistics'}
+            context['preserved_filters'] = ''
+            context['original'] = None
+            context['is_edit'] = False
+            context['is_popup'] = False
+            context['add'] = False
+            context['change'] = False
+            context['view'] = True
+            
         return context
 
 @method_decorator(staff_member_required, name='dispatch')
-class StatisticsHomeView(AdminViewMixin, TemplateView):
+class StatisticsHomeView(UnfoldStyleViewMixin, TemplateView):
     template_name = 'admin/statistics/home.html'
     title = "Общая статистика"
     
@@ -42,7 +57,7 @@ class StatisticsHomeView(AdminViewMixin, TemplateView):
         return context
 
 @method_decorator(staff_member_required, name='dispatch')
-class UsersStatisticsView(AdminViewMixin, TemplateView):
+class UsersStatisticsView(UnfoldStyleViewMixin, TemplateView):
     template_name = 'admin/statistics/users.html'
     title = "Статистика пользователей"
     
@@ -52,7 +67,7 @@ class UsersStatisticsView(AdminViewMixin, TemplateView):
         return context
 
 @method_decorator(staff_member_required, name='dispatch')
-class ServersStatisticsView(AdminViewMixin, TemplateView):
+class ServersStatisticsView(UnfoldStyleViewMixin, TemplateView):
     template_name = 'admin/statistics/servers.html'
     title = "Статистика серверов"
     
@@ -62,7 +77,7 @@ class ServersStatisticsView(AdminViewMixin, TemplateView):
         return context
 
 @method_decorator(staff_member_required, name='dispatch')
-class ClientAccessLogsView(AdminViewMixin, TemplateView):
+class ClientAccessLogsView(UnfoldStyleViewMixin, TemplateView):
     template_name = 'admin/statistics/client_logs.html'
     title = "Логи доступа клиента"
     
@@ -81,7 +96,7 @@ class ClientAccessLogsView(AdminViewMixin, TemplateView):
         return context
 
 @method_decorator(staff_member_required, name='dispatch')
-class TimeReportsView(AdminViewMixin, TemplateView):
+class TimeReportsView(UnfoldStyleViewMixin, TemplateView):
     template_name = 'admin/statistics/time_reports.html'
     title = "Отчеты по периодам"
     

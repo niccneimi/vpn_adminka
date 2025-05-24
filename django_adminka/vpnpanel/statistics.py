@@ -29,18 +29,17 @@ def get_users_statistics():
 
 def get_servers_statistics():
     """Получает статистику по серверам."""
-    servers = Server.objects.filter(created=1).annotate(
-        active_clients=Count(
-            'clientaskey',
-            filter=Q(
-                clientaskey__expiration_date__gt=int(datetime.datetime.now().timestamp()),
-                clientaskey__deleted=0
-            )
-        )
-    )
+    servers = Server.objects.filter(created=1)
     
     server_stats = []
     for server in servers:
+        # Подсчитываем активных клиентов отдельным запросом
+        active_clients_count = ClientAsKey.objects.filter(
+            host=server.host,
+            deleted=0,
+            expiration_date__gt=int(datetime.datetime.now().timestamp())
+        ).count()
+        
         active_sessions = ClientAsKey.objects.filter(
             host=server.host,
             deleted=0,
@@ -52,7 +51,7 @@ def get_servers_statistics():
             'host': server.host,
             'location': server.location,
             'clients_total': server.clients_on_server,
-            'active_clients': server.active_clients,
+            'active_clients': active_clients_count,
             'active_sessions': active_sessions
         })
     

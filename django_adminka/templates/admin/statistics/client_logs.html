@@ -1,99 +1,105 @@
 {% extends "admin/base_site.html" %}
-{% load i18n %}
+{% load i18n unfold %}
 
 {% block breadcrumbs %}
-<div class="breadcrumbs">
-<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-&rsaquo; <a href="/admin/statistics/">{% trans 'Статистика' %}</a>
-&rsaquo; {% trans 'Логи доступа клиента' %}
+<div class="px-4">
+    <div class="container mb-12 mx-auto -my-3">
+        <ul class="flex flex-wrap">
+            {% url 'admin:index' as link %}
+            {% trans 'Home' as name %}
+            {% include 'unfold/helpers/breadcrumb_item.html' with link=link name=name %}
+            {% url 'statistics_home' as link %}
+            {% trans 'Статистика' as name %}
+            {% include 'unfold/helpers/breadcrumb_item.html' with link=link name=name %}
+            {% trans 'Логи доступа клиента' as name %}
+            {% include 'unfold/helpers/breadcrumb_item.html' with name=name %}
+        </ul>
+    </div>
 </div>
 {% endblock %}
 
 {% block content %}
-<div class="container my-4">
-    <h1 class="mb-4">Логи доступа клиента</h1>
+<div class="mb-6">
+    <h1 class="text-2xl font-bold">Логи доступа клиента</h1>
+</div>
 
-    <div class="row">
-        <div class="col-12 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Информация о клиенте</h5>
+<div class="mb-6">
+    <div class="bg-white dark:bg-base-800 rounded shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-base-700">
+            <h2 class="font-semibold text-lg">Информация о клиенте</h2>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <p class="text-gray-500 dark:text-gray-400 mb-1">UUID:</p>
+                    <p class="font-medium">{{ client_data.uuid }}</p>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <p><strong>UUID:</strong> {{ client_data.uuid }}</p>
-                        </div>
-                        <div class="col-md-4">
-                            <p><strong>Telegram ID:</strong> {{ client_data.telegram_id }}</p>
-                        </div>
-                        <div class="col-md-4">
-                            <p><strong>Сервер:</strong> {{ client_data.host }}</p>
-                        </div>
-                    </div>
+                <div>
+                    <p class="text-gray-500 dark:text-gray-400 mb-1">Telegram ID:</p>
+                    <p class="font-medium">{{ client_data.telegram_id }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-500 dark:text-gray-400 mb-1">Сервер:</p>
+                    <p class="font-medium">{{ client_data.host }}</p>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="row">
-        <div class="col-12 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Активные подключения</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>IP-адрес</th>
-                                    <th>Страна</th>
-                                    <th>Город</th>
-                                    <th>Статус</th>
-                                    <th>Последняя активность</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for log in client_data.logs %}
-                                <tr>
-                                    <td>{{ log.ip }}</td>
-                                    <td>{{ log.country }}</td>
-                                    <td>{{ log.city }}</td>
-                                    <td>
-                                        {% if log.online %}
-                                        <span class="badge bg-success">Онлайн</span>
-                                        {% else %}
-                                        <span class="badge bg-secondary">Оффлайн</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ log.last_seen }}</td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="5" class="text-center">Нет активных подключений</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+<div class="mb-6">
+    <div class="bg-white dark:bg-base-800 rounded shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-base-700">
+            <h2 class="font-semibold text-lg">Активные подключения</h2>
+        </div>
+        <div class="p-6">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <th class="py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">IP-адрес</th>
+                            <th class="py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Страна</th>
+                            <th class="py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Город</th>
+                            <th class="py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Статус</th>
+                            <th class="py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Последняя активность</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in client_data.logs %}
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4 text-sm">{{ log.ip }}</td>
+                            <td class="py-3 px-4 text-sm">{{ log.country }}</td>
+                            <td class="py-3 px-4 text-sm">{{ log.city }}</td>
+                            <td class="py-3 px-4 text-sm">
+                                {% if log.online %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">Онлайн</span>
+                                {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">Оффлайн</span>
+                                {% endif %}
+                            </td>
+                            <td class="py-3 px-4 text-sm">{{ log.last_seen }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="py-3 px-4 text-sm text-center">Нет активных подключений</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Управление ключом</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-flex gap-2">
-                        <a href="/admin/vpnpanel/clientaskey/?telegram_id={{ client_data.telegram_id }}" class="btn btn-primary">Все ключи пользователя</a>
-                        <a href="/admin/vpnpanel/user/extend-key/" class="btn btn-outline-primary">Продлить ключ</a>
-                    </div>
-                </div>
+<div class="mb-6">
+    <div class="bg-white dark:bg-base-800 rounded shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-base-700">
+            <h2 class="font-semibold text-lg">Управление ключом</h2>
+        </div>
+        <div class="p-6">
+            <div class="flex flex-wrap gap-2">
+                <a href="/admin/vpnpanel/clientaskey/?telegram_id={{ client_data.telegram_id }}" class="py-2 px-4 bg-primary-600 hover:bg-primary-700 rounded text-white text-sm font-medium inline-block">Все ключи пользователя</a>
+                <a href="/admin/vpnpanel/user/extend-key/" class="py-2 px-4 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-sm font-medium inline-block">Продлить ключ</a>
             </div>
         </div>
     </div>

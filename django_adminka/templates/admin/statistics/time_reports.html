@@ -1,86 +1,85 @@
 {% extends "admin/base_site.html" %}
-{% load i18n %}
+{% load i18n unfold %}
 
 {% block breadcrumbs %}
-<div class="breadcrumbs">
-<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-&rsaquo; <a href="/admin/statistics/">{% trans 'Статистика' %}</a>
-&rsaquo; {% trans 'Отчеты по периодам' %}
+<div class="px-4">
+    <div class="container mb-12 mx-auto -my-3">
+        <ul class="flex flex-wrap">
+            {% url 'admin:index' as link %}
+            {% trans 'Home' as name %}
+            {% include 'unfold/helpers/breadcrumb_item.html' with link=link name=name %}
+            {% url 'statistics_home' as link %}
+            {% trans 'Статистика' as name %}
+            {% include 'unfold/helpers/breadcrumb_item.html' with link=link name=name %}
+            {% trans 'Отчеты по периодам' as name %}
+            {% include 'unfold/helpers/breadcrumb_item.html' with name=name %}
+        </ul>
+    </div>
 </div>
 {% endblock %}
 
 {% block content %}
-<div class="container my-4">
-    <h1 class="mb-4">Отчеты по периодам</h1>
+<div class="mb-6">
+    <h1 class="text-2xl font-bold">Отчеты по периодам</h1>
+</div>
 
-    <div class="mb-4">
-        <div class="btn-group" role="group">
-            <a href="/admin/statistics/time-reports/day/" class="btn btn-{% if period == 'day' %}primary{% else %}outline-primary{% endif %}">День</a>
-            <a href="/admin/statistics/time-reports/week/" class="btn btn-{% if period == 'week' %}primary{% else %}outline-primary{% endif %}">Неделя</a>
-            <a href="/admin/statistics/time-reports/month/" class="btn btn-{% if period == 'month' %}primary{% else %}outline-primary{% endif %}">Месяц</a>
-        </div>
+<div class="mb-6 flex">
+    <div class="flex space-x-2">
+        <a href="/admin/statistics/time-reports/day/" class="py-2 px-4 {% if period == 'day' %}bg-primary-600 text-white{% else %}bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600{% endif %} rounded text-sm font-medium">День</a>
+        <a href="/admin/statistics/time-reports/week/" class="py-2 px-4 {% if period == 'week' %}bg-primary-600 text-white{% else %}bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600{% endif %} rounded text-sm font-medium">Неделя</a>
+        <a href="/admin/statistics/time-reports/month/" class="py-2 px-4 {% if period == 'month' %}bg-primary-600 text-white{% else %}bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600{% endif %} rounded text-sm font-medium">Месяц</a>
     </div>
-    
-    <div class="row">
-        <div class="col-12 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    {% if period == 'day' %}
-                        <h5 class="card-title mb-0">Отчет за день</h5>
-                    {% elif period == 'week' %}
-                        <h5 class="card-title mb-0">Отчет за неделю</h5>
-                    {% elif period == 'month' %}
-                        <h5 class="card-title mb-0">Отчет за месяц</h5>
-                    {% endif %}
+</div>
+
+<div class="mb-6">
+    <div class="bg-white dark:bg-base-800 rounded shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-base-700">
+            <h2 class="font-semibold text-lg">
+                {% if period == 'day' %}
+                    Отчет за день
+                {% elif period == 'week' %}
+                    Отчет за неделю
+                {% elif period == 'month' %}
+                    Отчет за месяц
+                {% endif %}
+            </h2>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-gray-50 dark:bg-base-700 rounded p-6 text-center">
+                    <div class="text-3xl font-bold mb-2">{{ period_data.new_users }}</div>
+                    <div class="text-gray-500 dark:text-gray-400">Новых пользователей</div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3 text-center mb-4">
-                            <div class="py-3 bg-light rounded">
-                                <h2 class="display-5">{{ period_data.new_users }}</h2>
-                                <p class="lead">Новых пользователей</p>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-3 text-center mb-4">
-                            <div class="py-3 bg-light rounded">
-                                <h2 class="display-5">{{ period_data.new_orders }}</h2>
-                                <p class="lead">Новых заказов</p>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-3 text-center mb-4">
-                            <div class="py-3 bg-light rounded">
-                                <h2 class="display-5">{{ period_data.orders_sum }}</h2>
-                                <p class="lead">Сумма заказов</p>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-3 text-center mb-4">
-                            <div class="py-3 bg-light rounded">
-                                <h2 class="display-5">{{ period_data.new_keys }}</h2>
-                                <p class="lead">Новых ключей</p>
-                            </div>
-                        </div>
-                    </div>
+                
+                <div class="bg-gray-50 dark:bg-base-700 rounded p-6 text-center">
+                    <div class="text-3xl font-bold mb-2">{{ period_data.new_orders }}</div>
+                    <div class="text-gray-500 dark:text-gray-400">Новых заказов</div>
+                </div>
+                
+                <div class="bg-gray-50 dark:bg-base-700 rounded p-6 text-center">
+                    <div class="text-3xl font-bold mb-2">{{ period_data.orders_sum }}</div>
+                    <div class="text-gray-500 dark:text-gray-400">Сумма заказов</div>
+                </div>
+                
+                <div class="bg-gray-50 dark:bg-base-700 rounded p-6 text-center">
+                    <div class="text-3xl font-bold mb-2">{{ period_data.new_keys }}</div>
+                    <div class="text-gray-500 dark:text-gray-400">Новых ключей</div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <div class="row">
-        <div class="col-12 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Ссылки на другие отчеты</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-flex gap-2">
-                        <a href="/admin/statistics/" class="btn btn-primary">Общая статистика</a>
-                        <a href="/admin/vpnpanel/order/" class="btn btn-outline-primary">Список заказов</a>
-                        <a href="/admin/financial-report/" class="btn btn-outline-primary">Финансовый отчет</a>
-                    </div>
-                </div>
+</div>
+
+<div class="mb-6">
+    <div class="bg-white dark:bg-base-800 rounded shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-base-700">
+            <h2 class="font-semibold text-lg">Ссылки на другие отчеты</h2>
+        </div>
+        <div class="p-6">
+            <div class="flex flex-wrap gap-2">
+                <a href="/admin/statistics/" class="py-2 px-4 bg-primary-600 hover:bg-primary-700 rounded text-white text-sm font-medium inline-block">Общая статистика</a>
+                <a href="/admin/vpnpanel/order/" class="py-2 px-4 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-sm font-medium inline-block">Список заказов</a>
+                <a href="/admin/financial-report/" class="py-2 px-4 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-sm font-medium inline-block">Финансовый отчет</a>
             </div>
         </div>
     </div>

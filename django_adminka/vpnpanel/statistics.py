@@ -107,18 +107,12 @@ def get_time_period_data(period='day'):
     
     if period == 'day':
         start_date = today
-        period_format = '%Y-%m-%d'
-        truncate_date = connection.ops.date_trunc_sql('day', 'created_at')
     elif period == 'week':
         # Неделя назад
         start_date = today - datetime.timedelta(days=7)
-        period_format = '%Y-%m-%d'
-        truncate_date = connection.ops.date_trunc_sql('day', 'created_at')
     elif period == 'month':
         # Месяц назад
         start_date = today.replace(day=1)
-        period_format = '%Y-%m-%d'
-        truncate_date = connection.ops.date_trunc_sql('day', 'created_at')
     else:
         raise ValueError(f"Неподдерживаемый период: {period}")
 

@@ -1,0 +1,80 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="container my-4">
+    <h1 class="mb-4">Отчеты по периодам</h1>
+
+    <div class="mb-4">
+        <div class="btn-group" role="group">
+            <a href="{% url 'admin:statistics_time_reports' period='day' %}" class="btn btn-{% if period == 'day' %}primary{% else %}outline-primary{% endif %}">День</a>
+            <a href="{% url 'admin:statistics_time_reports' period='week' %}" class="btn btn-{% if period == 'week' %}primary{% else %}outline-primary{% endif %}">Неделя</a>
+            <a href="{% url 'admin:statistics_time_reports' period='month' %}" class="btn btn-{% if period == 'month' %}primary{% else %}outline-primary{% endif %}">Месяц</a>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    {% if period == 'day' %}
+                        <h5 class="card-title mb-0">Отчет за день</h5>
+                    {% elif period == 'week' %}
+                        <h5 class="card-title mb-0">Отчет за неделю</h5>
+                    {% elif period == 'month' %}
+                        <h5 class="card-title mb-0">Отчет за месяц</h5>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center mb-4">
+                            <div class="py-3 bg-light rounded">
+                                <h2 class="display-5">{{ period_data.new_users }}</h2>
+                                <p class="lead">Новых пользователей</p>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 text-center mb-4">
+                            <div class="py-3 bg-light rounded">
+                                <h2 class="display-5">{{ period_data.new_orders }}</h2>
+                                <p class="lead">Новых заказов</p>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 text-center mb-4">
+                            <div class="py-3 bg-light rounded">
+                                <h2 class="display-5">{{ period_data.orders_sum }}</h2>
+                                <p class="lead">Сумма заказов</p>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 text-center mb-4">
+                            <div class="py-3 bg-light rounded">
+                                <h2 class="display-5">{{ period_data.new_keys }}</h2>
+                                <p class="lead">Новых ключей</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Ссылки на другие отчеты</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'admin:statistics_home' %}" class="btn btn-primary">Общая статистика</a>
+                        <a href="{% url 'admin:vpnpanel_order_changelist' %}" class="btn btn-outline-primary">Список заказов</a>
+                        <a href="{% url 'admin:financial_report' %}" class="btn btn-outline-primary">Финансовый отчет</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

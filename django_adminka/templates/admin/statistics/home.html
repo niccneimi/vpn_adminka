@@ -1,0 +1,130 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="container my-4">
+    <h1 class="mb-4">Общая статистика</h1>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Пользователи</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <div>
+                            <h3>{{ user_stats.total_users }}</h3>
+                            <p class="text-muted mb-0">Всего пользователей</p>
+                        </div>
+                        <div>
+                            <h3>{{ user_stats.active_users }}</h3>
+                            <p class="text-muted mb-0">Активных пользователей</p>
+                        </div>
+                        <div>
+                            <h3>{{ user_stats.active_percentage }}%</h3>
+                            <p class="text-muted mb-0">Процент активных</p>
+                        </div>
+                    </div>
+                    <a href="{% url 'admin:statistics_users' %}" class="btn btn-primary">Подробнее</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Статистика серверов -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Серверы</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Сервер</th>
+                                    <th>Активные клиенты</th>
+                                    <th>Активные сессии</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for server in server_stats %}
+                                <tr>
+                                    <td>{{ server.host }}</td>
+                                    <td>{{ server.active_clients }}</td>
+                                    <td>{{ server.active_sessions }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">Нет данных о серверах</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <a href="{% url 'admin:statistics_servers' %}" class="btn btn-primary">Подробнее</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Отчеты по периодам -->
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Отчеты по периодам</h5>
+                    <div class="btn-group">
+                        <a href="{% url 'admin:statistics_time_reports' period='day' %}" class="btn btn-sm btn-outline-primary">День</a>
+                        <a href="{% url 'admin:statistics_time_reports' period='week' %}" class="btn btn-sm btn-outline-primary">Неделя</a>
+                        <a href="{% url 'admin:statistics_time_reports' period='month' %}" class="btn btn-sm btn-outline-primary">Месяц</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card border-0">
+                                <div class="card-body text-center">
+                                    <h6 class="card-subtitle mb-2 text-muted">За день</h6>
+                                    <h3>{{ day_stats.new_users }}</h3>
+                                    <p>Новых пользователей</p>
+                                    <h3>{{ day_stats.new_orders }}</h3>
+                                    <p>Новых заказов</p>
+                                    <h3>{{ day_stats.orders_sum }}</h3>
+                                    <p>Сумма заказов</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-0">
+                                <div class="card-body text-center">
+                                    <h6 class="card-subtitle mb-2 text-muted">За неделю</h6>
+                                    <h3>{{ week_stats.new_users }}</h3>
+                                    <p>Новых пользователей</p>
+                                    <h3>{{ week_stats.new_orders }}</h3>
+                                    <p>Новых заказов</p>
+                                    <h3>{{ week_stats.orders_sum }}</h3>
+                                    <p>Сумма заказов</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-0">
+                                <div class="card-body text-center">
+                                    <h6 class="card-subtitle mb-2 text-muted">За месяц</h6>
+                                    <h3>{{ month_stats.new_users }}</h3>
+                                    <p>Новых пользователей</p>
+                                    <h3>{{ month_stats.new_orders }}</h3>
+                                    <p>Новых заказов</p>
+                                    <h3>{{ month_stats.orders_sum }}</h3>
+                                    <p>Сумма заказов</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

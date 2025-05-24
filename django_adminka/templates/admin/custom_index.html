@@ -1,0 +1,16 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block sidebar %}
+{{ block.super }}
+<div class="module">
+    <h2>{% trans 'Статистика и отчеты' %}</h2>
+    <ul>
+        <li><a href="{% url 'admin:statistics_home' %}">{% trans 'Общая статистика' %}</a></li>
+        <li><a href="{% url 'admin:statistics_users' %}">{% trans 'Статистика пользователей' %}</a></li>
+        <li><a href="{% url 'admin:statistics_servers' %}">{% trans 'Статистика серверов' %}</a></li>
+        <li><a href="{% url 'admin:statistics_time_reports_default' %}">{% trans 'Отчеты по периодам' %}</a></li>
+        <li><a href="{% url 'admin:financial_report' %}">{% trans 'Финансовый отчет' %}</a></li>
+    </ul>
+</div>
+{% endblock %} 

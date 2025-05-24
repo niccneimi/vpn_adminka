@@ -1,0 +1,93 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="container my-4">
+    <h1 class="mb-4">Логи доступа клиента</h1>
+
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Информация о клиенте</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p><strong>UUID:</strong> {{ client_data.uuid }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>Telegram ID:</strong> {{ client_data.telegram_id }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>Сервер:</strong> {{ client_data.host }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Активные подключения</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>IP-адрес</th>
+                                    <th>Страна</th>
+                                    <th>Город</th>
+                                    <th>Статус</th>
+                                    <th>Последняя активность</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in client_data.logs %}
+                                <tr>
+                                    <td>{{ log.ip }}</td>
+                                    <td>{{ log.country }}</td>
+                                    <td>{{ log.city }}</td>
+                                    <td>
+                                        {% if log.online %}
+                                        <span class="badge bg-success">Онлайн</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">Оффлайн</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ log.last_seen }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">Нет активных подключений</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Управление ключом</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'admin:vpnpanel_clientaskey_changelist' %}?telegram_id={{ client_data.telegram_id }}" class="btn btn-primary">Все ключи пользователя</a>
+                        <a href="{% url 'admin:vpnpanel_user_extend_key' %}" class="btn btn-outline-primary">Продлить ключ</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,67 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="container my-4">
+    <h1 class="mb-4">Статистика серверов</h1>
+
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Активные сессии на серверах</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Сервер</th>
+                                    <th>Локация</th>
+                                    <th>Всего клиентов</th>
+                                    <th>Активных клиентов</th>
+                                    <th>Активных сессий</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for server in server_stats %}
+                                <tr>
+                                    <td>{{ server.host }}</td>
+                                    <td>{{ server.location|default:"Не указана" }}</td>
+                                    <td>{{ server.clients_total }}</td>
+                                    <td>{{ server.active_clients }}</td>
+                                    <td>{{ server.active_sessions }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">Нет данных о серверах</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Управление серверами</h5>
+                </div>
+                <div class="card-body">
+                    <p>Управление серверами доступно через:</p>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'admin:vpnpanel_server_changelist' %}" class="btn btn-primary">Список серверов</a>
+                        <a href="{% url 'admin:vpnpanel_server_add_server' %}" class="btn btn-outline-primary">Добавить сервер</a>
+                        <a href="{% url 'admin:vpnpanel_server_export_config' %}" class="btn btn-outline-primary">Выгрузить конфигурацию</a>
+                        <a href="{% url 'admin:vpnpanel_server_transfer_clients' %}" class="btn btn-outline-primary">Перенести клиентов</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

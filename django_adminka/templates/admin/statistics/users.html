@@ -1,0 +1,75 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="container my-4">
+    <h1 class="mb-4">Статистика пользователей</h1>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Общая информация</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="display-4">{{ user_stats.total_users }}</div>
+                            <p class="lead text-muted">Всего</p>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="display-4">{{ user_stats.active_users }}</div>
+                            <p class="lead text-muted">Активных</p>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="display-4">{{ user_stats.inactive_users }}</div>
+                            <p class="lead text-muted">Неактивных</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Процент активных пользователей</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="display-1">{{ user_stats.active_percentage }}%</div>
+                    <div class="progress mt-3" style="height: 25px;">
+                        <div class="progress-bar bg-success" role="progressbar" data-width="{{ user_stats.active_percentage }}" 
+                             aria-valuenow="{{ user_stats.active_percentage }}" aria-valuemin="0" aria-valuemax="100">
+                            {{ user_stats.active_percentage }}%
+                        </div>
+                    </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            var progressBar = document.querySelector('.progress-bar');
+                            var width = progressBar.getAttribute('data-width');
+                            progressBar.style.width = width + '%';
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Управление пользователями</h5>
+                </div>
+                <div class="card-body">
+                    <p>Управление пользователями доступно через:</p>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'admin:vpnpanel_user_changelist' %}" class="btn btn-primary">Список пользователей</a>
+                        <a href="{% url 'admin:vpnpanel_user_bot_sending' %}" class="btn btn-outline-primary">Отправить сообщение</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -29,6 +29,7 @@ urlpatterns = [
     path('admin/statistics/time-reports/<str:period>/', TimeReportsView.as_view(), name='statistics_time_reports'),
     path('admin/statistics/time-reports/', TimeReportsView.as_view(), name='statistics_time_reports_default'),
     path('admin/statistics/time-reports/custom/', TimeReportsView.as_view(), kwargs={'period': 'custom'}, name='statistics_time_reports_custom'),
+    path('admin/statistics/time-reports/all-time/', TimeReportsView.as_view(), kwargs={'period': 'all_time'}, name='statistics_time_reports_all_time'),
     path('admin/financial-report/', financial_report_view, name='financial_report'),
     
     path('admin/', admin.site.urls),

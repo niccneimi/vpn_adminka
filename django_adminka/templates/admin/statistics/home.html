@@ -92,6 +92,7 @@
                 <a href="/admin/statistics/time-reports/day/" class="py-1 px-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded text-sm">День</a>
                 <a href="/admin/statistics/time-reports/week/" class="py-1 px-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded text-sm">Неделя</a>
                 <a href="/admin/statistics/time-reports/month/" class="py-1 px-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded text-sm">Месяц</a>
+                <a href="/admin/statistics/time-reports/all-time/" class="py-1 px-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded text-sm">Всё время</a>
             </div>
         </div>
         
@@ -111,7 +112,7 @@
         </div>
         
         <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div>
                     <div class="text-center mb-4">
                         <h3 class="text-lg font-medium">За день</h3>
@@ -161,6 +162,23 @@
                     <div class="text-center">
                         <div class="text-2xl font-bold">{{ month_stats.orders_sum }}</div>
                         <div class="text-gray-500 dark:text-gray-400">Сумма заказов</div>
+                    </div>
+                </div>
+                <div>
+                    <div class="text-center mb-4">
+                        <h3 class="text-lg font-medium">За всё время</h3>
+                    </div>
+                    <div class="text-center mb-3">
+                        <div class="text-2xl font-bold">{{ all_time_stats.new_users }}</div>
+                        <div class="text-gray-500 dark:text-gray-400">Всего пользователей</div>
+                    </div>
+                    <div class="text-center mb-3">
+                        <div class="text-2xl font-bold">{{ all_time_stats.new_orders }}</div>
+                        <div class="text-gray-500 dark:text-gray-400">Всего заказов</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold">{{ all_time_stats.orders_sum }}</div>
+                        <div class="text-gray-500 dark:text-gray-400">Общая сумма заказов</div>
                     </div>
                 </div>
             </div>

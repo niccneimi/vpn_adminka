@@ -101,7 +101,10 @@ def get_time_period_data(period='day', start_date=None, end_date=None):
     """Получает статистику по указанному периоду."""
     today = timezone.now().date()
     
-    if start_date and end_date:
+    if period == 'all_time':
+        start_datetime = datetime.datetime(2000, 1, 1)
+        end_datetime = datetime.datetime.combine(today, datetime.time.max)
+    elif start_date and end_date:
         start_datetime = datetime.datetime.combine(start_date, datetime.time.min)
         end_datetime = datetime.datetime.combine(end_date, datetime.time.max)
     else:
@@ -141,8 +144,8 @@ def get_time_period_data(period='day', start_date=None, end_date=None):
     
     return {
         'period': period,
-        'start_date': start_date,
-        'end_date': end_date or today,
+        'start_date': start_date if period != 'all_time' else None,
+        'end_date': end_date or today if period != 'all_time' else None,
         'new_users': new_users,
         'new_orders': new_orders,
         'orders_sum': round(float(orders_sum), 2),

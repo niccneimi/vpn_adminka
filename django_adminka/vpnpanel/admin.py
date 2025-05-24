@@ -62,7 +62,7 @@ class ServersAdmin(ModelAdmin):
 
 @admin.register(User)
 class UserAdmin(ModelAdmin):
-    list_display = ('user_id_with_name', 'lang', 'free_trial_used', 'created_at', 'keys_link')
+    list_display = ('user_id_with_name', 'lang', 'free_trial_used', 'created_at', 'keys_link', 'subscription_end_date')
     list_filter = ('free_trial_used',)
     search_fields = ('user_id', 'name')
     ordering = ('-created_at',)
@@ -74,6 +74,21 @@ class UserAdmin(ModelAdmin):
     user_id_with_name.short_description = 'Telegram ID (Username)'
     user_id_with_name.admin_order_field = 'user_id'
 
+    def subscription_end_date(self, obj):
+        # Получаем ближайший активный ключ пользователя
+        active_key = ClientAsKey.objects.filter(
+            telegram_id=str(obj.user_id),
+            deleted=0,
+            expiration_date__gt=int(datetime.now().timestamp())
+        ).order_by('expiration_date').first()
+        
+        if active_key and active_key.expiration_date:
+            dt = datetime.fromtimestamp(active_key.expiration_date)
+            formatted = dt.strftime('%b %d, %Y')
+            return formatted
+        return '-'
+    subscription_end_date.short_description = 'Дата окончания подписки'
+
     def keys_link(self, obj):
         url = (
             reverse('admin:vpnpanel_clientaskey_changelist')
@@ -81,6 +96,47 @@ class UserAdmin(ModelAdmin):
         )
         return format_html('<a href="{}">Перейти к ключам</a>', url)
     keys_link.short_description = 'Ключи пользователя'
+
+    def get_search_results(self, request, queryset, search_term):
+        queryset, use_distinct = super().get_search_results(request, queryset, search_term)
+        
+        if search_term:
+            try:
+                # Проверяем, является ли поисковый запрос датой
+                date_formats = ['%Y-%m-%d', '%d.%m.%Y', '%m/%d/%Y', '%b %d, %Y']
+                parsed_date = None
+                
+                for date_format in date_formats:
+                    try:
+                        parsed_date = datetime.strptime(search_term, date_format)
+                        break
+                    except ValueError:
+                        continue
+                
+                if parsed_date:
+                    # Получаем UNIX timestamp начала и конца дня
+                    start_of_day = int(datetime(parsed_date.year, parsed_date.month, parsed_date.day, 0, 0, 0).timestamp())
+                    end_of_day = int(datetime(parsed_date.year, parsed_date.month, parsed_date.day, 23, 59, 59).timestamp())
+                    
+                    # Находим ключи с датой окончания в этот день
+                    keys_ending_on_date = ClientAsKey.objects.filter(
+                        deleted=0,
+                        expiration_date__gte=start_of_day,
+                        expiration_date__lte=end_of_day
+                    )
+                    
+                    # Получаем ID пользователей с ключами, заканчивающимися в указанную дату
+                    user_ids = [int(key.telegram_id) for key in keys_ending_on_date if key.telegram_id.isdigit()]
+                    
+                    # Добавляем этих пользователей к результатам поиска
+                    if user_ids:
+                        additional_qs = self.model.objects.filter(user_id__in=user_ids)
+                        queryset = queryset | additional_qs
+            except Exception as e:
+                # В случае ошибки парсинга даты, просто продолжаем
+                pass
+        
+        return queryset, use_distinct
 
     def get_urls(self):
         botsendview = self.admin_site.admin_view(BotSendView.as_view(model_admin=self))

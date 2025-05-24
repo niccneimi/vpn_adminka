@@ -129,7 +129,7 @@ class ClientAsKeyAdmin(ModelAdmin):
     list_display = ('telegram_id_with_name', 'host', 'uuid', 'created_at', 'formatted_expiration_date', 'deleted', 'logs_link')
     list_filter = ('deleted',)
     ordering = ('-created_at',)
-    search_fields = ('telegram_id', 'user__name', 'uuid')
+    search_fields = ('telegram_id', 'uuid')
     
     def telegram_id_with_name(self, obj):
         try:

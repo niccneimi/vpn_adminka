@@ -1,138 +1,141 @@
 {% extends "admin/base_site.html" %}
-{% load i18n %}
+{% load i18n unfold %}
 
 {% block breadcrumbs %}
-<div class="breadcrumbs">
-<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-&rsaquo; {% trans 'Общая статистика' %}
+<div class="px-4">
+    <div class="container mb-12 mx-auto -my-3">
+        <ul class="flex flex-wrap">
+            {% url 'admin:index' as link %}
+            {% trans 'Home' as name %}
+            {% include 'unfold/helpers/breadcrumb_item.html' with link=link name=name %}
+            {% trans 'Общая статистика' as name %}
+            {% include 'unfold/helpers/breadcrumb_item.html' with name=name %}
+        </ul>
+    </div>
 </div>
 {% endblock %}
 
 {% block content %}
-<div class="container my-4">
-    <h1 class="mb-4">Общая статистика</h1>
+<div class="mb-6">
+    <h1 class="text-2xl font-bold">Общая статистика</h1>
+</div>
 
-    <div class="row">
-        <!-- Статистика пользователей -->
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Пользователи</h5>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Статистика пользователей -->
+    {% include 'unfold/components/card.html' with title="Пользователи" %}
+        <div class="grid grid-cols-3 gap-4 mb-4">
+            <div class="text-center">
+                <div class="text-3xl font-bold">{{ user_stats.total_users }}</div>
+                <div class="text-gray-500 dark:text-gray-400">Всего пользователей</div>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-bold">{{ user_stats.active_users }}</div>
+                <div class="text-gray-500 dark:text-gray-400">Активных пользователей</div>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-bold">{{ user_stats.active_percentage }}%</div>
+                <div class="text-gray-500 dark:text-gray-400">Процент активных</div>
+            </div>
+        </div>
+        <div>
+            <a href="/admin/statistics/users/" class="py-2 px-4 bg-primary-600 hover:bg-primary-700 rounded text-white text-sm font-medium">Подробнее</a>
+        </div>
+    {% include 'unfold/components/card.html' with end=True %}
+
+    <!-- Статистика серверов -->
+    {% include 'unfold/components/card.html' with title="Серверы" %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <th class="py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Сервер</th>
+                        <th class="py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Активные клиенты</th>
+                        <th class="py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Активные сессии</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for server in server_stats %}
+                    <tr class="border-b border-gray-200 dark:border-gray-700">
+                        <td class="py-3 px-4 text-sm">{{ server.host }}</td>
+                        <td class="py-3 px-4 text-sm">{{ server.active_clients }}</td>
+                        <td class="py-3 px-4 text-sm">{{ server.active_sessions }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="py-3 px-4 text-sm text-center">Нет данных о серверах</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-4">
+            <a href="/admin/statistics/servers/" class="py-2 px-4 bg-primary-600 hover:bg-primary-700 rounded text-white text-sm font-medium">Подробнее</a>
+        </div>
+    {% include 'unfold/components/card.html' with end=True %}
+</div>
+
+<div class="mb-6">
+    {% include 'unfold/components/card.html' with title="Отчеты по периодам" %}
+        <div class="flex justify-end mb-4">
+            <div class="flex space-x-2">
+                <a href="/admin/statistics/time-reports/day/" class="py-1 px-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded text-sm">День</a>
+                <a href="/admin/statistics/time-reports/week/" class="py-1 px-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded text-sm">Неделя</a>
+                <a href="/admin/statistics/time-reports/month/" class="py-1 px-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded text-sm">Месяц</a>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <div class="text-center mb-4">
+                    <h3 class="text-lg font-medium">За день</h3>
                 </div>
-                <div class="card-body">
-                    <div class="d-flex justify-content-between mb-3">
-                        <div>
-                            <h3>{{ user_stats.total_users }}</h3>
-                            <p class="text-muted mb-0">Всего пользователей</p>
-                        </div>
-                        <div>
-                            <h3>{{ user_stats.active_users }}</h3>
-                            <p class="text-muted mb-0">Активных пользователей</p>
-                        </div>
-                        <div>
-                            <h3>{{ user_stats.active_percentage }}%</h3>
-                            <p class="text-muted mb-0">Процент активных</p>
-                        </div>
-                    </div>
-                    <a href="/admin/statistics/users/" class="btn btn-primary">Подробнее</a>
+                <div class="text-center mb-3">
+                    <div class="text-2xl font-bold">{{ day_stats.new_users }}</div>
+                    <div class="text-gray-500 dark:text-gray-400">Новых пользователей</div>
+                </div>
+                <div class="text-center mb-3">
+                    <div class="text-2xl font-bold">{{ day_stats.new_orders }}</div>
+                    <div class="text-gray-500 dark:text-gray-400">Новых заказов</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold">{{ day_stats.orders_sum }}</div>
+                    <div class="text-gray-500 dark:text-gray-400">Сумма заказов</div>
+                </div>
+            </div>
+            <div>
+                <div class="text-center mb-4">
+                    <h3 class="text-lg font-medium">За неделю</h3>
+                </div>
+                <div class="text-center mb-3">
+                    <div class="text-2xl font-bold">{{ week_stats.new_users }}</div>
+                    <div class="text-gray-500 dark:text-gray-400">Новых пользователей</div>
+                </div>
+                <div class="text-center mb-3">
+                    <div class="text-2xl font-bold">{{ week_stats.new_orders }}</div>
+                    <div class="text-gray-500 dark:text-gray-400">Новых заказов</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold">{{ week_stats.orders_sum }}</div>
+                    <div class="text-gray-500 dark:text-gray-400">Сумма заказов</div>
+                </div>
+            </div>
+            <div>
+                <div class="text-center mb-4">
+                    <h3 class="text-lg font-medium">За месяц</h3>
+                </div>
+                <div class="text-center mb-3">
+                    <div class="text-2xl font-bold">{{ month_stats.new_users }}</div>
+                    <div class="text-gray-500 dark:text-gray-400">Новых пользователей</div>
+                </div>
+                <div class="text-center mb-3">
+                    <div class="text-2xl font-bold">{{ month_stats.new_orders }}</div>
+                    <div class="text-gray-500 dark:text-gray-400">Новых заказов</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold">{{ month_stats.orders_sum }}</div>
+                    <div class="text-gray-500 dark:text-gray-400">Сумма заказов</div>
                 </div>
             </div>
         </div>
-
-        <!-- Статистика серверов -->
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Серверы</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Сервер</th>
-                                    <th>Активные клиенты</th>
-                                    <th>Активные сессии</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for server in server_stats %}
-                                <tr>
-                                    <td>{{ server.host }}</td>
-                                    <td>{{ server.active_clients }}</td>
-                                    <td>{{ server.active_sessions }}</td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="3" class="text-center">Нет данных о серверах</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <a href="/admin/statistics/servers/" class="btn btn-primary">Подробнее</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <!-- Отчеты по периодам -->
-        <div class="col-12 mb-4">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Отчеты по периодам</h5>
-                    <div class="btn-group">
-                        <a href="/admin/statistics/time-reports/day/" class="btn btn-sm btn-outline-primary">День</a>
-                        <a href="/admin/statistics/time-reports/week/" class="btn btn-sm btn-outline-primary">Неделя</a>
-                        <a href="/admin/statistics/time-reports/month/" class="btn btn-sm btn-outline-primary">Месяц</a>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="card border-0">
-                                <div class="card-body text-center">
-                                    <h6 class="card-subtitle mb-2 text-muted">За день</h6>
-                                    <h3>{{ day_stats.new_users }}</h3>
-                                    <p>Новых пользователей</p>
-                                    <h3>{{ day_stats.new_orders }}</h3>
-                                    <p>Новых заказов</p>
-                                    <h3>{{ day_stats.orders_sum }}</h3>
-                                    <p>Сумма заказов</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card border-0">
-                                <div class="card-body text-center">
-                                    <h6 class="card-subtitle mb-2 text-muted">За неделю</h6>
-                                    <h3>{{ week_stats.new_users }}</h3>
-                                    <p>Новых пользователей</p>
-                                    <h3>{{ week_stats.new_orders }}</h3>
-                                    <p>Новых заказов</p>
-                                    <h3>{{ week_stats.orders_sum }}</h3>
-                                    <p>Сумма заказов</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card border-0">
-                                <div class="card-body text-center">
-                                    <h6 class="card-subtitle mb-2 text-muted">За месяц</h6>
-                                    <h3>{{ month_stats.new_users }}</h3>
-                                    <p>Новых пользователей</p>
-                                    <h3>{{ month_stats.new_orders }}</h3>
-                                    <p>Новых заказов</p>
-                                    <h3>{{ month_stats.orders_sum }}</h3>
-                                    <p>Сумма заказов</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    {% include 'unfold/components/card.html' with end=True %}
 </div>
 {% endblock %} 

@@ -102,7 +102,6 @@ class UserAdmin(ModelAdmin):
         
         if search_term:
             try:
-                # Проверяем, является ли поисковый запрос датой
                 date_formats = ['%Y-%m-%d', '%d.%m.%Y', '%m/%d/%Y', '%b %d, %Y']
                 parsed_date = None
                 
@@ -114,26 +113,21 @@ class UserAdmin(ModelAdmin):
                         continue
                 
                 if parsed_date:
-                    # Получаем UNIX timestamp начала и конца дня
                     start_of_day = int(datetime(parsed_date.year, parsed_date.month, parsed_date.day, 0, 0, 0).timestamp())
                     end_of_day = int(datetime(parsed_date.year, parsed_date.month, parsed_date.day, 23, 59, 59).timestamp())
                     
-                    # Находим ключи с датой окончания в этот день
                     keys_ending_on_date = ClientAsKey.objects.filter(
                         deleted=0,
                         expiration_date__gte=start_of_day,
                         expiration_date__lte=end_of_day
                     )
                     
-                    # Получаем ID пользователей с ключами, заканчивающимися в указанную дату
                     user_ids = [int(key.telegram_id) for key in keys_ending_on_date if key.telegram_id.isdigit()]
                     
-                    # Добавляем этих пользователей к результатам поиска
                     if user_ids:
                         additional_qs = self.model.objects.filter(user_id__in=user_ids)
                         queryset = queryset | additional_qs
             except Exception as e:
-                # В случае ошибки парсинга даты, просто продолжаем
                 pass
         
         return queryset, use_distinct

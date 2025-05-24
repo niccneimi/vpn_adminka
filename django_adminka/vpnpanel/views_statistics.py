@@ -6,19 +6,34 @@ from .statistics import (
 )
 from django.contrib.admin.views.decorators import staff_member_required
 from django.utils.decorators import method_decorator
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import ClientAsKey
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from django.contrib import admin
 
-@method_decorator(staff_member_required, name='dispatch')
-class StatisticsHomeView(UnfoldModelAdminViewMixin, TemplateView):
-    template_name = 'admin/statistics/home.html'
-    title = "Общая статистика"
+class AdminViewMixin(LoginRequiredMixin):
+    """Миксин для добавления контекста админки."""
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(admin.site.each_context(self.request))
+        
+        # Добавляем основные переменные админ-контекста
+        context['has_permission'] = True
+        context['is_popup'] = False
+        context['is_nav_sidebar_enabled'] = True
+        context['available_apps'] = admin.site.get_app_list(self.request)
+        
+        return context
+
+@method_decorator(staff_member_required, name='dispatch')
+class StatisticsHomeView(AdminViewMixin, TemplateView):
+    template_name = 'admin/statistics/home.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = "Общая статистика"
         context['user_stats'] = get_users_statistics()
         context['server_stats'] = get_servers_statistics()
         context['day_stats'] = get_time_period_data('day')
@@ -27,35 +42,32 @@ class StatisticsHomeView(UnfoldModelAdminViewMixin, TemplateView):
         return context
 
 @method_decorator(staff_member_required, name='dispatch')
-class UsersStatisticsView(UnfoldModelAdminViewMixin, TemplateView):
+class UsersStatisticsView(AdminViewMixin, TemplateView):
     template_name = 'admin/statistics/users.html'
-    title = "Статистика пользователей"
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(admin.site.each_context(self.request))
+        context['title'] = "Статистика пользователей"
         context['user_stats'] = get_users_statistics()
         return context
 
 @method_decorator(staff_member_required, name='dispatch')
-class ServersStatisticsView(UnfoldModelAdminViewMixin, TemplateView):
+class ServersStatisticsView(AdminViewMixin, TemplateView):
     template_name = 'admin/statistics/servers.html'
-    title = "Статистика серверов"
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(admin.site.each_context(self.request))
+        context['title'] = "Статистика серверов"
         context['server_stats'] = get_servers_statistics()
         return context
 
 @method_decorator(staff_member_required, name='dispatch')
-class ClientAccessLogsView(UnfoldModelAdminViewMixin, TemplateView):
+class ClientAccessLogsView(AdminViewMixin, TemplateView):
     template_name = 'admin/statistics/client_logs.html'
-    title = "Логи доступа клиента"
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(admin.site.each_context(self.request))
+        context['title'] = "Логи доступа клиента"
         uuid = self.kwargs.get('uuid')
         
         if not uuid:
@@ -69,13 +81,12 @@ class ClientAccessLogsView(UnfoldModelAdminViewMixin, TemplateView):
         return context
 
 @method_decorator(staff_member_required, name='dispatch')
-class TimeReportsView(UnfoldModelAdminViewMixin, TemplateView):
+class TimeReportsView(AdminViewMixin, TemplateView):
     template_name = 'admin/statistics/time_reports.html'
-    title = "Отчеты по периодам"
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(admin.site.each_context(self.request))
+        context['title'] = "Отчеты по периодам"
         period = self.kwargs.get('period', 'day')
         
         if period not in ['day', 'week', 'month']:

@@ -21,9 +21,8 @@ from vpnpanel.admin import financial_report_view
 
 urlpatterns = [
     path('admin_tools/', include('admin_tools.urls')),
-    path('admin/', admin.site.urls),
     
-    # Маршруты статистики
+    # Маршруты статистики - помещаем до admin.site.urls
     path('admin/statistics/', StatisticsHomeView.as_view(), name='statistics_home'),
     path('admin/statistics/users/', UsersStatisticsView.as_view(), name='statistics_users'),
     path('admin/statistics/servers/', ServersStatisticsView.as_view(), name='statistics_servers'),
@@ -31,4 +30,7 @@ urlpatterns = [
     path('admin/statistics/time-reports/<str:period>/', TimeReportsView.as_view(), name='statistics_time_reports'),
     path('admin/statistics/time-reports/', TimeReportsView.as_view(), name='statistics_time_reports_default'),
     path('admin/financial-report/', financial_report_view, name='financial_report'),
+    
+    # Стандартный путь админки должен быть последним
+    path('admin/', admin.site.urls),
 ]

@@ -1,6 +1,14 @@
 {% extends "admin/base_site.html" %}
 {% load i18n %}
 
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="/admin/statistics/">{% trans 'Статистика' %}</a>
+&rsaquo; {% trans 'Статистика пользователей' %}
+</div>
+{% endblock %}
+
 {% block content %}
 <div class="container my-4">
     <h1 class="mb-4">Статистика пользователей</h1>

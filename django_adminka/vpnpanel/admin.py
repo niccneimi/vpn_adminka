@@ -145,6 +145,7 @@ class OrderAdmin(ModelAdmin):
         'promocode_used',
         'created_at',
     )
+    search_fields = ('user__user_id', 'user__name', 'extra__hash_tx')
 
     def user_display(self, obj):
         if hasattr(obj.user, 'user_id'):

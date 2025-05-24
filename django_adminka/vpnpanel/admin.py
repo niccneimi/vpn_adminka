@@ -155,6 +155,18 @@ class ClientAsKeyAdmin(ModelAdmin):
             return formatted
         return '-'
     formatted_expiration_date.short_description = 'Дата истечения'
+    
+    def get_search_results(self, request, queryset, search_term):
+        queryset, use_distinct = super().get_search_results(request, queryset, search_term)
+        
+        if search_term:
+            users = User.objects.filter(name__icontains=search_term)
+            if users.exists():
+                user_ids = [str(user.user_id) for user in users]
+                additional_qs = self.model.objects.filter(telegram_id__in=user_ids)
+                queryset = queryset | additional_qs
+        
+        return queryset, use_distinct
 
 @admin.register(Tarif)
 class TarifsAdmin(ModelAdmin):

@@ -12,7 +12,7 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404
 from django.contrib import admin
 
-class AdminViewMixin(LoginRequiredMixin):
+class AdminViewMixin(LoginRequiredMixin, UnfoldModelAdminViewMixin):
     """Миксин для добавления контекста админки."""
     
     def get_context_data(self, **kwargs):
@@ -30,10 +30,10 @@ class AdminViewMixin(LoginRequiredMixin):
 @method_decorator(staff_member_required, name='dispatch')
 class StatisticsHomeView(AdminViewMixin, TemplateView):
     template_name = 'admin/statistics/home.html'
+    title = "Общая статистика"
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = "Общая статистика"
         context['user_stats'] = get_users_statistics()
         context['server_stats'] = get_servers_statistics()
         context['day_stats'] = get_time_period_data('day')
@@ -44,30 +44,30 @@ class StatisticsHomeView(AdminViewMixin, TemplateView):
 @method_decorator(staff_member_required, name='dispatch')
 class UsersStatisticsView(AdminViewMixin, TemplateView):
     template_name = 'admin/statistics/users.html'
+    title = "Статистика пользователей"
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = "Статистика пользователей"
         context['user_stats'] = get_users_statistics()
         return context
 
 @method_decorator(staff_member_required, name='dispatch')
 class ServersStatisticsView(AdminViewMixin, TemplateView):
     template_name = 'admin/statistics/servers.html'
+    title = "Статистика серверов"
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = "Статистика серверов"
         context['server_stats'] = get_servers_statistics()
         return context
 
 @method_decorator(staff_member_required, name='dispatch')
 class ClientAccessLogsView(AdminViewMixin, TemplateView):
     template_name = 'admin/statistics/client_logs.html'
+    title = "Логи доступа клиента"
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = "Логи доступа клиента"
         uuid = self.kwargs.get('uuid')
         
         if not uuid:
@@ -83,10 +83,10 @@ class ClientAccessLogsView(AdminViewMixin, TemplateView):
 @method_decorator(staff_member_required, name='dispatch')
 class TimeReportsView(AdminViewMixin, TemplateView):
     template_name = 'admin/statistics/time_reports.html'
+    title = "Отчеты по периодам"
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = "Отчеты по периодам"
         period = self.kwargs.get('period', 'day')
         
         if period not in ['day', 'week', 'month']:

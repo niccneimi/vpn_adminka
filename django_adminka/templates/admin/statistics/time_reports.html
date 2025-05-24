@@ -7,9 +7,9 @@
 
     <div class="mb-4">
         <div class="btn-group" role="group">
-            <a href="{% url 'admin:statistics_time_reports' period='day' %}" class="btn btn-{% if period == 'day' %}primary{% else %}outline-primary{% endif %}">День</a>
-            <a href="{% url 'admin:statistics_time_reports' period='week' %}" class="btn btn-{% if period == 'week' %}primary{% else %}outline-primary{% endif %}">Неделя</a>
-            <a href="{% url 'admin:statistics_time_reports' period='month' %}" class="btn btn-{% if period == 'month' %}primary{% else %}outline-primary{% endif %}">Месяц</a>
+            <a href="/admin/statistics/time-reports/day/" class="btn btn-{% if period == 'day' %}primary{% else %}outline-primary{% endif %}">День</a>
+            <a href="/admin/statistics/time-reports/week/" class="btn btn-{% if period == 'week' %}primary{% else %}outline-primary{% endif %}">Неделя</a>
+            <a href="/admin/statistics/time-reports/month/" class="btn btn-{% if period == 'month' %}primary{% else %}outline-primary{% endif %}">Месяц</a>
         </div>
     </div>
     
@@ -68,9 +68,9 @@
                 </div>
                 <div class="card-body">
                     <div class="d-flex gap-2">
-                        <a href="{% url 'admin:statistics_home' %}" class="btn btn-primary">Общая статистика</a>
-                        <a href="{% url 'admin:vpnpanel_order_changelist' %}" class="btn btn-outline-primary">Список заказов</a>
-                        <a href="{% url 'admin:financial_report' %}" class="btn btn-outline-primary">Финансовый отчет</a>
+                        <a href="/admin/statistics/" class="btn btn-primary">Общая статистика</a>
+                        <a href="/admin/vpnpanel/order/" class="btn btn-outline-primary">Список заказов</a>
+                        <a href="/admin/financial-report/" class="btn btn-outline-primary">Финансовый отчет</a>
                     </div>
                 </div>
             </div>

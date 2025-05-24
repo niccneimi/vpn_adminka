@@ -187,23 +187,23 @@ UNFOLD = {
             "items": [
                 {
                     "title": "Общая статистика",
-                    "link": reverse_lazy("admin:statistics_home")
+                    "link": "/admin/statistics/"
                 },
                 {
                     "title": "Статистика пользователей",
-                    "link": reverse_lazy("admin:statistics_users")
+                    "link": "/admin/statistics/users/"
                 },
                 {
                     "title": "Статистика серверов",
-                    "link": reverse_lazy("admin:statistics_servers")
+                    "link": "/admin/statistics/servers/"
                 },
                 {
                     "title": "Отчеты по периодам",
-                    "link": reverse_lazy("admin:statistics_time_reports_default")
+                    "link": "/admin/statistics/time-reports/"
                 },
                 {
                     "title": "Финансовый отчет",
-                    "link": reverse_lazy("admin:financial_report")
+                    "link": "/admin/financial-report/"
                 }
             ]
         }

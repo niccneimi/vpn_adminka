@@ -8,28 +8,6 @@ from .views import BotSendView, AddKeyView, DeleteAllKeysView, ExtendKeyView, Ad
 from .views_statistics import StatisticsHomeView, UsersStatisticsView, ServersStatisticsView, ClientAccessLogsView, TimeReportsView
 from datetime import datetime
 
-original_get_urls = admin.site.get_urls
-
-def get_urls():
-    url_patterns = original_get_urls()
-    
-    url_patterns += [
-        path('financial-report/', admin.site.admin_view(financial_report_view), name='financial_report'),
-    ]
-    
-    url_patterns += [
-        path('statistics/', admin.site.admin_view(StatisticsHomeView.as_view()), name='statistics_home'),
-        path('statistics/users/', admin.site.admin_view(UsersStatisticsView.as_view()), name='statistics_users'),
-        path('statistics/servers/', admin.site.admin_view(ServersStatisticsView.as_view()), name='statistics_servers'),
-        path('statistics/client-logs/<str:uuid>/', admin.site.admin_view(ClientAccessLogsView.as_view()), name='statistics_client_logs'),
-        path('statistics/time-reports/<str:period>/', admin.site.admin_view(TimeReportsView.as_view()), name='statistics_time_reports'),
-        path('statistics/time-reports/', admin.site.admin_view(TimeReportsView.as_view()), name='statistics_time_reports_default'),
-    ]
-    
-    return url_patterns
-
-admin.site.get_urls = get_urls
-
 def financial_report_view(request):
     orders = Order.objects.order_by('-created_at')
 
@@ -143,7 +121,7 @@ class ClientAsKeyAdmin(ModelAdmin):
     telegram_id_with_name.admin_order_field = 'telegram_id'
 
     def logs_link(self, obj):
-        url = reverse('admin:statistics_client_logs', args=[obj.uuid])
+        url = f"/admin/statistics/client-logs/{obj.uuid}/"
         return format_html('<a href="{}">Просмотр логов</a>', url)
     logs_link.short_description = 'Логи доступа'
 

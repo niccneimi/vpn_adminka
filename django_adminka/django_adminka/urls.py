@@ -16,6 +16,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from vpnpanel.views_statistics import StatisticsHomeView, UsersStatisticsView, ServersStatisticsView, ClientAccessLogsView, TimeReportsView
+from vpnpanel.admin import financial_report_view
+
+admin.site.register_view('statistics/', StatisticsHomeView.as_view(), 'statistics_home')
+admin.site.register_view('statistics/users/', UsersStatisticsView.as_view(), 'statistics_users')
+admin.site.register_view('statistics/servers/', ServersStatisticsView.as_view(), 'statistics_servers')
+admin.site.register_view('statistics/client-logs/<str:uuid>/', ClientAccessLogsView.as_view(), 'statistics_client_logs')
+admin.site.register_view('statistics/time-reports/<str:period>/', TimeReportsView.as_view(), 'statistics_time_reports')
+admin.site.register_view('statistics/time-reports/', TimeReportsView.as_view(), 'statistics_time_reports_default')
+admin.site.register_view('financial-report/', financial_report_view, 'financial_report')
 
 urlpatterns = [
     path('admin_tools/', include('admin_tools.urls')),

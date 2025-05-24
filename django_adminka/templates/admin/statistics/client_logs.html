@@ -82,8 +82,8 @@
                 </div>
                 <div class="card-body">
                     <div class="d-flex gap-2">
-                        <a href="{% url 'admin:vpnpanel_clientaskey_changelist' %}?telegram_id={{ client_data.telegram_id }}" class="btn btn-primary">Все ключи пользователя</a>
-                        <a href="{% url 'admin:vpnpanel_user_extend_key' %}" class="btn btn-outline-primary">Продлить ключ</a>
+                        <a href="/admin/vpnpanel/clientaskey/?telegram_id={{ client_data.telegram_id }}" class="btn btn-primary">Все ключи пользователя</a>
+                        <a href="/admin/vpnpanel/user/extend-key/" class="btn btn-outline-primary">Продлить ключ</a>
                     </div>
                 </div>
             </div>

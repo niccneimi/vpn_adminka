@@ -22,120 +22,133 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
     <!-- Статистика пользователей -->
-    {% include 'unfold/components/card.html' with title="Пользователи" %}
-        <div class="grid grid-cols-3 gap-4 mb-4">
-            <div class="text-center">
-                <div class="text-3xl font-bold">{{ user_stats.total_users }}</div>
-                <div class="text-gray-500 dark:text-gray-400">Всего пользователей</div>
+    <div class="bg-white dark:bg-base-800 rounded shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-base-700">
+            <h2 class="font-semibold text-lg">Пользователи</h2>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-3 gap-4 mb-4">
+                <div class="text-center">
+                    <div class="text-3xl font-bold">{{ user_stats.total_users }}</div>
+                    <div class="text-gray-500 dark:text-gray-400">Всего пользователей</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold">{{ user_stats.active_users }}</div>
+                    <div class="text-gray-500 dark:text-gray-400">Активных пользователей</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold">{{ user_stats.active_percentage }}%</div>
+                    <div class="text-gray-500 dark:text-gray-400">Процент активных</div>
+                </div>
             </div>
-            <div class="text-center">
-                <div class="text-3xl font-bold">{{ user_stats.active_users }}</div>
-                <div class="text-gray-500 dark:text-gray-400">Активных пользователей</div>
-            </div>
-            <div class="text-center">
-                <div class="text-3xl font-bold">{{ user_stats.active_percentage }}%</div>
-                <div class="text-gray-500 dark:text-gray-400">Процент активных</div>
+            <div>
+                <a href="/admin/statistics/users/" class="py-2 px-4 bg-primary-600 hover:bg-primary-700 rounded text-white text-sm font-medium inline-block">Подробнее</a>
             </div>
         </div>
-        <div>
-            <a href="/admin/statistics/users/" class="py-2 px-4 bg-primary-600 hover:bg-primary-700 rounded text-white text-sm font-medium">Подробнее</a>
-        </div>
-    {% include 'unfold/components/card.html' with end=True %}
+    </div>
 
     <!-- Статистика серверов -->
-    {% include 'unfold/components/card.html' with title="Серверы" %}
-        <div class="overflow-x-auto">
-            <table class="w-full text-left">
-                <thead>
-                    <tr class="border-b border-gray-200 dark:border-gray-700">
-                        <th class="py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Сервер</th>
-                        <th class="py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Активные клиенты</th>
-                        <th class="py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Активные сессии</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for server in server_stats %}
-                    <tr class="border-b border-gray-200 dark:border-gray-700">
-                        <td class="py-3 px-4 text-sm">{{ server.host }}</td>
-                        <td class="py-3 px-4 text-sm">{{ server.active_clients }}</td>
-                        <td class="py-3 px-4 text-sm">{{ server.active_sessions }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="3" class="py-3 px-4 text-sm text-center">Нет данных о серверах</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <div class="bg-white dark:bg-base-800 rounded shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-base-700">
+            <h2 class="font-semibold text-lg">Серверы</h2>
         </div>
-        <div class="mt-4">
-            <a href="/admin/statistics/servers/" class="py-2 px-4 bg-primary-600 hover:bg-primary-700 rounded text-white text-sm font-medium">Подробнее</a>
+        <div class="p-6">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <th class="py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Сервер</th>
+                            <th class="py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Активные клиенты</th>
+                            <th class="py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Активные сессии</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for server in server_stats %}
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <td class="py-3 px-4 text-sm">{{ server.host }}</td>
+                            <td class="py-3 px-4 text-sm">{{ server.active_clients }}</td>
+                            <td class="py-3 px-4 text-sm">{{ server.active_sessions }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="py-3 px-4 text-sm text-center">Нет данных о серверах</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-4">
+                <a href="/admin/statistics/servers/" class="py-2 px-4 bg-primary-600 hover:bg-primary-700 rounded text-white text-sm font-medium inline-block">Подробнее</a>
+            </div>
         </div>
-    {% include 'unfold/components/card.html' with end=True %}
+    </div>
 </div>
 
 <div class="mb-6">
-    {% include 'unfold/components/card.html' with title="Отчеты по периодам" %}
-        <div class="flex justify-end mb-4">
+    <div class="bg-white dark:bg-base-800 rounded shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-base-700 flex justify-between items-center">
+            <h2 class="font-semibold text-lg">Отчеты по периодам</h2>
             <div class="flex space-x-2">
                 <a href="/admin/statistics/time-reports/day/" class="py-1 px-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded text-sm">День</a>
                 <a href="/admin/statistics/time-reports/week/" class="py-1 px-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded text-sm">Неделя</a>
                 <a href="/admin/statistics/time-reports/month/" class="py-1 px-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded text-sm">Месяц</a>
             </div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-                <div class="text-center mb-4">
-                    <h3 class="text-lg font-medium">За день</h3>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <div class="text-center mb-4">
+                        <h3 class="text-lg font-medium">За день</h3>
+                    </div>
+                    <div class="text-center mb-3">
+                        <div class="text-2xl font-bold">{{ day_stats.new_users }}</div>
+                        <div class="text-gray-500 dark:text-gray-400">Новых пользователей</div>
+                    </div>
+                    <div class="text-center mb-3">
+                        <div class="text-2xl font-bold">{{ day_stats.new_orders }}</div>
+                        <div class="text-gray-500 dark:text-gray-400">Новых заказов</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold">{{ day_stats.orders_sum }}</div>
+                        <div class="text-gray-500 dark:text-gray-400">Сумма заказов</div>
+                    </div>
                 </div>
-                <div class="text-center mb-3">
-                    <div class="text-2xl font-bold">{{ day_stats.new_users }}</div>
-                    <div class="text-gray-500 dark:text-gray-400">Новых пользователей</div>
+                <div>
+                    <div class="text-center mb-4">
+                        <h3 class="text-lg font-medium">За неделю</h3>
+                    </div>
+                    <div class="text-center mb-3">
+                        <div class="text-2xl font-bold">{{ week_stats.new_users }}</div>
+                        <div class="text-gray-500 dark:text-gray-400">Новых пользователей</div>
+                    </div>
+                    <div class="text-center mb-3">
+                        <div class="text-2xl font-bold">{{ week_stats.new_orders }}</div>
+                        <div class="text-gray-500 dark:text-gray-400">Новых заказов</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold">{{ week_stats.orders_sum }}</div>
+                        <div class="text-gray-500 dark:text-gray-400">Сумма заказов</div>
+                    </div>
                 </div>
-                <div class="text-center mb-3">
-                    <div class="text-2xl font-bold">{{ day_stats.new_orders }}</div>
-                    <div class="text-gray-500 dark:text-gray-400">Новых заказов</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold">{{ day_stats.orders_sum }}</div>
-                    <div class="text-gray-500 dark:text-gray-400">Сумма заказов</div>
-                </div>
-            </div>
-            <div>
-                <div class="text-center mb-4">
-                    <h3 class="text-lg font-medium">За неделю</h3>
-                </div>
-                <div class="text-center mb-3">
-                    <div class="text-2xl font-bold">{{ week_stats.new_users }}</div>
-                    <div class="text-gray-500 dark:text-gray-400">Новых пользователей</div>
-                </div>
-                <div class="text-center mb-3">
-                    <div class="text-2xl font-bold">{{ week_stats.new_orders }}</div>
-                    <div class="text-gray-500 dark:text-gray-400">Новых заказов</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold">{{ week_stats.orders_sum }}</div>
-                    <div class="text-gray-500 dark:text-gray-400">Сумма заказов</div>
-                </div>
-            </div>
-            <div>
-                <div class="text-center mb-4">
-                    <h3 class="text-lg font-medium">За месяц</h3>
-                </div>
-                <div class="text-center mb-3">
-                    <div class="text-2xl font-bold">{{ month_stats.new_users }}</div>
-                    <div class="text-gray-500 dark:text-gray-400">Новых пользователей</div>
-                </div>
-                <div class="text-center mb-3">
-                    <div class="text-2xl font-bold">{{ month_stats.new_orders }}</div>
-                    <div class="text-gray-500 dark:text-gray-400">Новых заказов</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold">{{ month_stats.orders_sum }}</div>
-                    <div class="text-gray-500 dark:text-gray-400">Сумма заказов</div>
+                <div>
+                    <div class="text-center mb-4">
+                        <h3 class="text-lg font-medium">За месяц</h3>
+                    </div>
+                    <div class="text-center mb-3">
+                        <div class="text-2xl font-bold">{{ month_stats.new_users }}</div>
+                        <div class="text-gray-500 dark:text-gray-400">Новых пользователей</div>
+                    </div>
+                    <div class="text-center mb-3">
+                        <div class="text-2xl font-bold">{{ month_stats.new_orders }}</div>
+                        <div class="text-gray-500 dark:text-gray-400">Новых заказов</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold">{{ month_stats.orders_sum }}</div>
+                        <div class="text-gray-500 dark:text-gray-400">Сумма заказов</div>
+                    </div>
                 </div>
             </div>
         </div>
-    {% include 'unfold/components/card.html' with end=True %}
+    </div>
 </div>
 {% endblock %} 

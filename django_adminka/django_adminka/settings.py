@@ -127,6 +127,11 @@ UNFOLD = {
             "title": _("Рассылка в боте"),
             "link": "/admin/vpnpanel/user/bot-sending/",
         },
+        {
+            "icon": "analytics",
+            "title": _("Статистика"),
+            "link": "/admin/statistics/",
+        },
     ],
     "TABS": [
         {
@@ -174,8 +179,34 @@ UNFOLD = {
                     "link": reverse_lazy("admin:vpnpanel_server_transfer_clients")
                 }
             ]
+        },
+        {
+            "models": [
+                "statistics"
+            ],
+            "items": [
+                {
+                    "title": "Общая статистика",
+                    "link": reverse_lazy("admin:statistics_home")
+                },
+                {
+                    "title": "Статистика пользователей",
+                    "link": reverse_lazy("admin:statistics_users")
+                },
+                {
+                    "title": "Статистика серверов",
+                    "link": reverse_lazy("admin:statistics_servers")
+                },
+                {
+                    "title": "Отчеты по периодам",
+                    "link": reverse_lazy("admin:statistics_time_reports_default")
+                },
+                {
+                    "title": "Финансовый отчет",
+                    "link": reverse_lazy("admin:financial_report")
+                }
+            ]
         }
-
     ]
 }
 

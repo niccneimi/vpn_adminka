@@ -30,8 +30,6 @@ def get_urls():
 
 admin.site.get_urls = get_urls
 
-admin.site.index_template = 'admin/custom_index.html'
-    
 def financial_report_view(request):
     orders = Order.objects.order_by('-created_at')
 
@@ -131,6 +129,7 @@ class ClientAsKeyAdmin(ModelAdmin):
     list_display = ('telegram_id_with_name', 'host', 'uuid', 'created_at', 'formatted_expiration_date', 'deleted', 'logs_link')
     list_filter = ('deleted',)
     ordering = ('-created_at',)
+    search_fields = ('telegram_id', 'user__name', 'uuid')
     
     def telegram_id_with_name(self, obj):
         try:

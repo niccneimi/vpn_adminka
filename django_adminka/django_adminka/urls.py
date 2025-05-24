@@ -22,15 +22,14 @@ from vpnpanel.admin import financial_report_view
 urlpatterns = [
     path('admin_tools/', include('admin_tools.urls')),
     
-    # Маршруты статистики - помещаем до admin.site.urls
     path('admin/statistics/', StatisticsHomeView.as_view(), name='statistics_home'),
     path('admin/statistics/users/', UsersStatisticsView.as_view(), name='statistics_users'),
     path('admin/statistics/servers/', ServersStatisticsView.as_view(), name='statistics_servers'),
     path('admin/statistics/client-logs/<str:uuid>/', ClientAccessLogsView.as_view(), name='statistics_client_logs'),
     path('admin/statistics/time-reports/<str:period>/', TimeReportsView.as_view(), name='statistics_time_reports'),
     path('admin/statistics/time-reports/', TimeReportsView.as_view(), name='statistics_time_reports_default'),
+    path('admin/statistics/time-reports/custom/', TimeReportsView.as_view(), kwargs={'period': 'custom'}, name='statistics_time_reports_custom'),
     path('admin/financial-report/', financial_report_view, name='financial_report'),
     
-    # Стандартный путь админки должен быть последним
     path('admin/', admin.site.urls),
 ]

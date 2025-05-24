@@ -33,7 +33,6 @@ def get_servers_statistics():
     
     server_stats = []
     for server in servers:
-        # Подсчитываем активных клиентов отдельным запросом
         active_clients_count = ClientAsKey.objects.filter(
             host=server.host,
             deleted=0,
@@ -66,14 +65,11 @@ def get_client_access_logs(uuid):
     
     logs = []
     
-    # Если есть онлайн IP, создаем записи для них
     if client.online_ips:
         ips = client.online_ips.split(':')
         for ip in ips:
-            if ip:  # проверяем, что IP не пустой
-                # Здесь можно добавить интеграцию с сервисом геолокации
+            if ip:
                 try:
-                    # Пример запроса к ipinfo.io
                     response = requests.get(f"https://ipinfo.io/{ip}/json")
                     if response.status_code == 200:
                         ip_data = response.json()
@@ -101,48 +97,52 @@ def get_client_access_logs(uuid):
         'logs': logs
     }
 
-def get_time_period_data(period='day'):
+def get_time_period_data(period='day', start_date=None, end_date=None):
     """Получает статистику по указанному периоду."""
     today = timezone.now().date()
     
-    if period == 'day':
-        start_date = today
-    elif period == 'week':
-        # Неделя назад
-        start_date = today - datetime.timedelta(days=7)
-    elif period == 'month':
-        # Месяц назад
-        start_date = today.replace(day=1)
+    if start_date and end_date:
+        start_datetime = datetime.datetime.combine(start_date, datetime.time.min)
+        end_datetime = datetime.datetime.combine(end_date, datetime.time.max)
     else:
-        raise ValueError(f"Неподдерживаемый период: {period}")
+        if period == 'day':
+            start_date = today
+        elif period == 'week':
+            start_date = today - datetime.timedelta(days=7)
+        elif period == 'month':
+            start_date = today.replace(day=1)
+        else:
+            raise ValueError(f"Неподдерживаемый период: {period}")
 
-    # Конвертируем дату в datetime для фильтрации
-    start_datetime = datetime.datetime.combine(start_date, datetime.time.min)
+        start_datetime = datetime.datetime.combine(start_date, datetime.time.min)
+        end_datetime = datetime.datetime.combine(today, datetime.time.max)
     
-    # Количество новых пользователей
     new_users = User.objects.filter(
-        created_at__gte=start_datetime
+        created_at__gte=start_datetime,
+        created_at__lte=end_datetime
     ).count()
     
-    # Количество новых заказов
     new_orders = Order.objects.filter(
-        created_at__gte=start_datetime
+        created_at__gte=start_datetime,
+        created_at__lte=end_datetime
     ).count()
     
-    # Сумма по заказам
     orders_sum = Order.objects.filter(
-        created_at__gte=start_datetime
+        created_at__gte=start_datetime,
+        created_at__lte=end_datetime
     ).aggregate(
         total=Sum('amount')
     )['total'] or 0
     
-    # Количество новых ключей
     new_keys = ClientAsKey.objects.filter(
-        created_at__gte=start_datetime
+        created_at__gte=start_datetime,
+        created_at__lte=end_datetime
     ).count()
     
     return {
         'period': period,
+        'start_date': start_date,
+        'end_date': end_date or today,
         'new_users': new_users,
         'new_orders': new_orders,
         'orders_sum': round(float(orders_sum), 2),

@@ -28,8 +28,32 @@
         <a href="/admin/statistics/time-reports/day/" class="py-2 px-4 {% if period == 'day' %}bg-primary-600 text-white{% else %}bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600{% endif %} rounded text-sm font-medium">День</a>
         <a href="/admin/statistics/time-reports/week/" class="py-2 px-4 {% if period == 'week' %}bg-primary-600 text-white{% else %}bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600{% endif %} rounded text-sm font-medium">Неделя</a>
         <a href="/admin/statistics/time-reports/month/" class="py-2 px-4 {% if period == 'month' %}bg-primary-600 text-white{% else %}bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600{% endif %} rounded text-sm font-medium">Месяц</a>
+        <a href="/admin/statistics/time-reports/custom/" class="py-2 px-4 {% if period == 'custom' %}bg-primary-600 text-white{% else %}bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600{% endif %} rounded text-sm font-medium">Произвольный период</a>
     </div>
 </div>
+
+{% if period == 'custom' %}
+<div class="mb-6">
+    <div class="bg-white dark:bg-base-800 rounded shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-base-700">
+            <h2 class="font-semibold text-lg">Выберите период</h2>
+        </div>
+        <div class="p-4">
+            <form method="get" class="flex flex-wrap items-center gap-4">
+                <div class="flex items-center">
+                    <label for="start_date" class="mr-2 text-sm text-gray-600 dark:text-gray-400">От:</label>
+                    <input type="date" id="start_date" name="start_date" value="{{ start_date }}" class="py-1 px-2 border border-gray-300 dark:border-gray-700 rounded text-sm dark:bg-gray-800" required>
+                </div>
+                <div class="flex items-center">
+                    <label for="end_date" class="mr-2 text-sm text-gray-600 dark:text-gray-400">До:</label>
+                    <input type="date" id="end_date" name="end_date" value="{{ end_date }}" class="py-1 px-2 border border-gray-300 dark:border-gray-700 rounded text-sm dark:bg-gray-800" required>
+                </div>
+                <button type="submit" class="py-1 px-4 bg-primary-600 hover:bg-primary-700 text-white rounded text-sm">Показать</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
 
 <div class="mb-6">
     <div class="bg-white dark:bg-base-800 rounded shadow-sm overflow-hidden">
@@ -41,6 +65,8 @@
                     Отчет за неделю
                 {% elif period == 'month' %}
                     Отчет за месяц
+                {% elif period == 'custom' %}
+                    Отчет за период с {{ period_data.start_date|date:"d.m.Y" }} по {{ period_data.end_date|date:"d.m.Y" }}
                 {% endif %}
             </h2>
         </div>
